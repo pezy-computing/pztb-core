@@ -1,0 +1,9 @@
+[submodule "tvip/tvip-axi"]
+	path = tvip/tvip-axi
+	url = https://github.com/taichi-ishitani/tvip-axi.git
+[submodule "tvip/tvip-common"]
+	path = tvip/tvip-common
+	url = https://github.com/taichi-ishitani/tvip-common.git
+[submodule "tue"]
+	path = tue
+	url = https://github.com/taichi-ishitani/tue.git

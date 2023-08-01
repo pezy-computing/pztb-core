@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin>
+  <extension point="com.synopsys.sg.vip.pa.protocol">
+    <protocol
+      name="pzvip_corebus"
+      display_text="pzvip_corebus"
+      description="Protocol Analyer Extension for pzvip_corebus"
+    >
+      <methodology
+        name="uvm"
+        display_text="UVM"
+        description="Universal Verification Methodology"
+      />
+
+      <!-- Transaction definitions -->
+      <object_type
+        name="pzvip_corebus_transaction"
+        class_name="pzvip_corebus_item"
+        display_text="Transaction"
+        header_text="Transactions"
+        relative_display_order="400"
+      >
+        <field name="command" display_text="command" data_type="pzvip_corebus_command_type"/>
+        <field name="bus_id" display_text="bus_id" data_type="pzvip_corebus_id"/>
+        <field name="address" display_text="address" data_type="pzvip_corebus_address"/>
+        <field name="length" display_text="length" data_type="int"/>
+        <field name="burst_length" display_text="burst_length" data_type="int"/>
+        <field name="message_code" display_text="message_code" data_type="pzvip_corebus_message_code"/>
+        <field name="request_info" display_text="request_info" data_type="pzvip_corebus_request_info"/>
+        <field name="request_data" display_text="request_data" data_type="pzvip_corebus_data []"/>
+        <field name="byte_enable" display_text="byte_enable" data_type="pzvip_corebus_byte_enable []"/>
+        <field name="response_data" display_text="response_data" data_type="pzvip_corebus_data []"/>
+        <field name="error" display_text="error" data_type="bit []"/>
+        <field name="response_info" display_text="response_info" data_type="pzvip_corebus_response_infoo []"/>
+      </object_type>
+
+      <!-- Command definitions -->
+      <object_type
+        name="pzvip_corebus_command_item"
+        display_text="Command Item"
+        header_text="Command Items"
+        relative_display_order="100"
+      >
+        <object_sub_type name="pzvip_corebus_command"/>
+        <object_sub_type name="pzvip_corebus_command_bus_activity"/>
+      </object_type>
+
+      <object_type
+        name="pzvip_corebus_command"
+        class_name="pzvip_corebus_command_item"
+        display_text="Command Item"
+        header_text="Command Items"
+        relative_display_order="100"
+      >
+        <field name="command" display_text="command" data_type="pzvip_corebus_command_type"/>
+        <field name="bus_id" display_text="bus_id" data_type="pzvip_corebus_id"/>
+        <field name="address" display_text="address" data_type="pzvip_corebus_address"/>
+        <field name="length" display_text="length" data_type="int"/>
+        <field name="message_code" display_text="message_code" data_type="pzvip_corebus_message_code"/>
+        <field name="request_info" display_text="request_info" data_type="pzvip_corebus_request_info"/>
+        <field name="data" display_text="request_data" data_type="pzvip_corebus_data"/>
+      </object_type>
+
+      <object_type
+        name="pzvip_corebus_command_bus_activity"
+        display_text="Command Bus Activity"
+        header_text="Command Bus Activities"
+        relative_display_order="200"
+      >
+        <field name="stall_cycles" display_text="stall_cycles" data_type="int"/>
+      </object_type>
+
+      <!-- Request data definitions -->
+      <object_type
+        name="pzvip_corebus_request_data_item"
+        display_text="Request Data Item"
+        header_text="Request Data Items"
+        relative_display_order="200"
+      >
+        <object_sub_type name="pzvip_corebus_request_data"/>
+        <object_sub_type name="pzvip_corebus_request_data_bus_activity"/>
+      </object_type>
+
+      <object_type
+        name="pzvip_corebus_request_data"
+        class_name="pzvip_corebus_request_data_item"
+        display_text="Request Data Item"
+        header_text="Request Data Items"
+        relative_display_order="100"
+      >
+        <field name="request_data" display_text="request_data" data_type="pzvip_corebus_data []"/>
+        <field name="byte_enable" display_text="byte_enable" data_type="pzvip_corebus_byte_enable []"/>
+      </object_type>
+
+      <object_type
+        name="pzvip_corebus_request_data_bus_activity"
+        display_text="Request Data Bus Activity"
+        header_text="Request Data Bus Activities"
+        relative_display_order="200"
+      >
+        <field name="stall_cycles" display_text="stall_cycles" data_type="int"/>
+        <field name="gap_cycles" display_text="gap_cycles" data_type="int"/>
+      </object_type>
+
+      <!-- Response Definisions -->
+      <object_type
+        name="pzvip_corebus_response_item"
+        display_text="Response Item"
+        header_text="Response Items"
+        relative_display_order="300"
+      >
+        <object_sub_type name="pzvip_corebus_response"/>
+        <object_sub_type name="pzvip_corebus_response_bus_activity"/>
+      </object_type>
+
+      <object_type
+        name="pzvip_corebus_response"
+        class_name="pzvip_corebus_response_item"
+        display_text="Response Item"
+        header_text="Response Items"
+        relative_display_order="100"
+      >
+        <field name="response_type" display_text="response_type" data_type="pzvip_corebus_response_type"/>
+        <field name="bus_id" display_text="bus_id" data_type="pzvip_corebus_id"/>
+        <field name="response_data" display_text="response_data" data_type="pzvip_corebus_data []"/>
+        <field name="error" display_text="error" data_type="bit []"/>
+        <field name="response_info" display_text="response_info" data_type="pzvip_corebus_response_infoo []"/>
+      </object_type>
+
+      <object_type
+        name="pzvip_corebus_response_bus_activity"
+        display_text="Response Bus Activity"
+        header_text="Response Bus Activities"
+        relative_display_order="200"
+      >
+        <field name="stall_cycles" display_text="stall_cycles" data_type="int"/>
+        <field name="gap_cycles" display_text="gap_cycles" data_type="int"/>
+      </object_type>
+
+      <!-- Signal group definitions -->
+      <signal_if_group
+        if_name="pzvip_corebus_if"
+        group_name="csrbus_command"
+        display_text="CSRBUS Command"
+        description="CSRBUS Command"
+        extended_interface_path=""
+        signals="i_rst_n, i_clk, scmd_accept, mcmd_valid, mcmd, mid, maddr, mdata, minfo"
+      />
+
+      <signal_if_group
+        if_name="pzvip_corebus_if"
+        group_name="membus_command"
+        display_text="MEMBUS Command"
+        signals="i_rst_n, i_clk, scmd_accept, mcmd_valid, mcmd, mid, maddr, mlength[decimal, unsigned], minfo"
+      />
+
+      <signal_if_group
+        if_name="pzvip_corebus_if"
+        group_name="request_data"
+        display_text="Request Data"
+        signals="i_rst_n, i_clk, sdata_accept, mdata_valid, mdata, mdata_byteen, mdata_last[binary]"
+      />
+
+      <signal_if_group
+        if_name="pzvip_corebus_if"
+        group_name="csrbus_request"
+        display_text="CSRBUS Request"
+        signals="i_rst_n, i_clk, scmd_accept, mcmd_valid, mcmd, mid, maddr, mdata, minfo"
+      />
+
+      <signal_if_group
+        if_name="pzvip_corebus_if"
+        group_name="membus_request"
+        display_text="MEMBUS Request"
+        signals="i_rst_n, i_clk, scmd_accept, mcmd_valid, mcmd, mid, maddr, mlength[decimal, unsigned], minfo,
+        sdata_accept, mdata_valid, mdata, mdata_byteen, mdata_last[binary]"
+      />
+
+      <signal_if_group
+        if_name="pzvip_corebus_if"
+        group_name="csrbus_response"
+        display_text="CSRBUS Response"
+        signals="i_rst_n, i_clk, mresp_accept, sresp_valid, sresp, serror, sdata, sinfo"
+      />
+
+      <signal_if_group
+        if_name="pzvip_corebus_if"
+        group_name="membus_response"
+        display_text="MEMBUS Response"
+        signals="i_rst_n, i_clk, mresp_accept, sresp_valid, sresp, serror, sdata, sresp_uniten, sinfo, sresp_last[binary]"
+      />
+
+      <signal_if_group
+        if_name="pzvip_corebus_if"
+        group_name="csrbus_all"
+        display_text="CSRBUS All"
+        signals="i_rst_n, i_clk, scmd_accept, mcmd_valid, mcmd, mid, maddr, mdata, minfo,
+        mresp_accept, sresp_valid, sresp, serror, sdata, sinfo"
+      />
+
+      <signal_if_group
+        if_name="pzvip_corebus_if"
+        group_name="membus_all"
+        display_text="MEMBUS All"
+        signals="i_rst_n, i_clk, scmd_accept, mcmd_valid, mcmd, mid, maddr, mlength[decimal, unsigned], minfo,
+        sdata_accept, mdata_valid, mdata, mdata_byteen, mdata_last[binary],
+        mresp_accept, sresp_valid, sresp, serror, sdata, sresp_uniten, sinfo, sresp_last[binary]"
+      />
+    </protocol>
+  </extension>
+</plugin>

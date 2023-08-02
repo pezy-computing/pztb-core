@@ -4,6 +4,8 @@
 ##                    All Rights Reserved.
 ##
 ##========================================
-file_list 'tue.list.rb', from: :local_root
-file_list 'tvip-common/compile.rb', from: :current
-file_list 'tvip-axi/compile.rb', from: :current
+if env? :TUE_HOME
+  file_list 'compile.rb', from: env(:TUE_HOME)
+else
+  file_list 'tue/compile.rb', from: :local_root
+end

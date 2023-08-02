@@ -4,13 +4,7 @@
 ##                    All Rights Reserved.
 ##
 ##========================================
-
-## TUE
-if env? :TUE_HOME
-  file_list 'compile.rb', from: env(:TUE_HOME)
-else
-  file_list 'tue/compile.rb', from: :local_root
-end
+file_list 'tue.list.rb', from: :local_root
 
 ## Verdi Performance Analyzer
 if macro?(:_PZ_PZVIP_ENABLE_PA_WRITER_) && target_tool?(:vcs)

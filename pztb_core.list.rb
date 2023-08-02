@@ -10,6 +10,7 @@ default_search_path file_list: :current
 if macro? :_PZ_UVM_
   file_list 'pzvip/pzvip.list.rb'
   file_list 'tvip/tvip.list.rb'
+  file_list 'pztb_common_env/pztb_common_env.list.rb'
 end
 
 [

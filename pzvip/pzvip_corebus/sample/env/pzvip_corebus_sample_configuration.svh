@@ -18,8 +18,10 @@ class pzvip_corebus_sample_configuration extends tue_configuration;
       corebus_cfg.data_width      == 128;
     }
     else if (profile == PZVIP_COREBUS_MEMORY_L) {
-      corebus_cfg.max_length == 32;
-      corebus_cfg.data_width == 64;
+      corebus_cfg.max_length      == 32;
+      corebus_cfg.unit_data_width == 32;
+      corebus_cfg.max_data_width  == 128;
+      corebus_cfg.data_width      == 128;
     }
     else if (profile == PZVIP_COREBUS_CSR) {
       corebus_cfg.data_width == 32;

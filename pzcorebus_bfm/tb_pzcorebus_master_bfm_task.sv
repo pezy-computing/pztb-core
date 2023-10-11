@@ -17,7 +17,7 @@ interface automatic tb_pzcrebus_master_bfm_task
   input var bit [BUS_CONFIG.id_width-1:0] i_id_mask,
   pzcorebus_if.master                     master_if
 );
-  localparam  bit CSRBUS  = BUS_CONFIG.profile == PZCOREBUS_CSR;
+  localparam  bit CSRBUS  = is_csr_profile(BUS_CONFIG);
 
   typedef bit [BUS_CONFIG.id_width-1:0]                   pzcorebus_id;
   typedef bit [BUS_CONFIG.address_width-1:0]              pzcorebus_addrss;
@@ -220,15 +220,10 @@ interface automatic tb_pzcrebus_master_bfm_task
       return burst_length;  //  message code
     end
 
-    if (BUS_CONFIG.profile == PZCOREBUS_MEMORY_H) begin
+    if (is_memory_profile(BUS_CONFIG)) begin
       int offset;
       offset  = (address % API_BYTE_WIDTH) / UNIT_BYTE_WIDTH;
       return burst_length * API_DATA_UNITS - offset;
-    end
-    else if (BUS_CONFIG.data_width > API_DATA_WIDTH) begin
-      int offset;
-      offset  = calc_burst_offset(address);
-      return (burst_length + offset - (DATA_RATIO - 1)) / DATA_RATIO;
     end
     else begin
       return burst_length;

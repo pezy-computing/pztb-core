@@ -63,19 +63,19 @@ class pzvip_corebus_master_access_sequence extends pzvip_corebus_master_sequence
       length inside {[1:this.configuration.max_length]};
     }
 
-    if ((this.configuration.profile == PZVIP_COREBUS_MEMORY_H) && is_full_write_command(command)) {
+    if ((this.configuration.profile != PZVIP_COREBUS_CSR) && is_full_write_command(command)) {
       (length % this.configuration.data_size) == 0;
     }
   }
 
   constraint c_valid_burst_length {
     solve command, length before burst_length;
-    if (this.configuration.profile != PZVIP_COREBUS_MEMORY_H) {
+
+    if (this.configuration.profile == PZVIP_COREBUS_CSR) {
       burst_length == length;
     }
     else if (is_atomic_command(command)) {
-      burst_length ==
-        (length + (this.configuration.data_size - 1)) / this.configuration.data_size;
+      burst_length == (length + (this.configuration.data_size - 1)) / this.configuration.data_size;
     }
     else if (is_message_command(command)) {
       burst_length == 0;

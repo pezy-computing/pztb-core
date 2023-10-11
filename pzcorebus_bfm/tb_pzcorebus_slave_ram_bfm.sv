@@ -22,7 +22,7 @@ interface automatic tb_pzcorebus_slave_ram_bfm
   typedef bit [get_byte_enable_width(BUS_CONFIG, 1)-1:0]  pzcorebus_byte_enable;
   typedef bit [get_unit_enable_width(BUS_CONFIG, 1)-1:0]  pzcorebus_unit_enable;
 
-  localparam  bit     CSRBUS          = BUS_CONFIG.profile == PZCOREBUS_CSR;
+  localparam  bit     CSRBUS          = is_csr_profile(BUS_CONFIG);
   localparam  int     BYTE_WIDTH      = BUS_CONFIG.data_width / 8;
   localparam  int     DATA_SIZE       = BUS_CONFIG.data_width / BUS_CONFIG.unit_data_width;
   localparam  int     UNIT_BYTE_WIDTH = BUS_CONFIG.unit_data_width / 8;
@@ -66,7 +66,7 @@ interface automatic tb_pzcorebus_slave_ram_bfm
     end
     command = slave_if.get_command();
 
-    if (BUS_CONFIG.profile != PZCOREBUS_CSR) begin
+    if (is_memory_profile(BUS_CONFIG)) begin
       slave_if.sdata_accept = write_data_accept;
       write_data_valid      = slave_if.mdata_valid;
       write_data            = slave_if.get_write_data();
@@ -316,7 +316,7 @@ interface automatic tb_pzcorebus_slave_ram_bfm
         end
         response_data.push_back(data);
 
-        if ((request.command == PZCOREBUS_READ) && (BUS_CONFIG.profile == PZCOREBUS_MEMORY_H)) begin
+        if ((request.command == PZCOREBUS_READ) && is_memory_h_profile(BUS_CONFIG)) begin
           pzcorebus_unit_enable enable;
           enable  = ((1 << size) - 1) << unit_offset;
           unit_enable.push_back(enable);
@@ -349,7 +349,7 @@ interface automatic tb_pzcorebus_slave_ram_bfm
       if (response_data.size() > 0) begin
         return 2'b00;
       end
-      else if (BUS_CONFIG.profile == PZCOREBUS_MEMORY_H) begin
+      else if (is_memory_h_profile(BUS_CONFIG)) begin
         return 2'b11;
       end
       else begin

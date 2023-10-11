@@ -115,15 +115,18 @@ class pzvip_corebus_configuration extends tue_configuration;
     solve profile, unit_data_width before max_data_width;
     max_data_width inside {[unit_data_width:`PZVIP_COREBUS_MAX_DATA_WIDTH]};
     (max_data_width % unit_data_width) == 0;
-    if (profile != PZVIP_COREBUS_MEMORY_H) {
+    if (profile == PZVIP_COREBUS_CSR) {
       max_data_width == unit_data_width;
     }
   }
 
   constraint c_valid_data_width {
-    solve unit_data_width, max_data_width before data_width;
+    solve profile, unit_data_width, max_data_width before data_width;
     data_width inside {[unit_data_width:max_data_width]};
     (data_width % unit_data_width) == 0;
+    if (profile != PZVIP_COREBUS_MEMORY_H) {
+      data_width == max_data_width;
+    }
   }
 
   constraint c_valid_byte_enable_width {
@@ -166,16 +169,6 @@ class pzvip_corebus_configuration extends tue_configuration;
   constraint c_default_status_weight {
     soft weight_error    == -1;
     soft weight_no_error == -1;
-  }
-
-  constraint c_default_response_order {
-    solve profile before response_order;
-    if (profile == PZVIP_COREBUS_CSR) {
-      soft response_order == PZVIP_COREBUS_IN_ORDER_RESPONSE;
-    }
-    else {
-      soft response_order == PZVIP_COREBUS_OUT_OF_ORDER_RESPONSE;
-    }
   }
 
   constraint c_valid_outstanding_non_posted_accesses {

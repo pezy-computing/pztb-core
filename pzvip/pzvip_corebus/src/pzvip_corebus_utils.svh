@@ -80,13 +80,13 @@ function automatic int calc_initial_offset(
   if (is_atomic_command(command)) begin
     return 0;
   end
-  else if (configuration.profile == PZVIP_COREBUS_MEMORY_H) begin
+  else if (configuration.profile == PZVIP_COREBUS_CSR) begin
+    return 0;
+  end
+  else begin
     int data_size;
     data_size = (request) ? configuration.data_size : configuration.max_data_size;
     return (address >> configuration.address_shift) % data_size;
-  end
-  else begin
-    return 0;
   end
 endfunction
 
@@ -98,9 +98,6 @@ function automatic int calc_burst_length(
 );
   if (configuration.profile == PZVIP_COREBUS_CSR) begin
     return 1;
-  end
-  else if (configuration.profile == PZVIP_COREBUS_MEMORY_L) begin
-    return length;
   end
   else begin
     return (

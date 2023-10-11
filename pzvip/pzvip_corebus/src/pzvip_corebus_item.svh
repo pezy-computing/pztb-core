@@ -224,8 +224,7 @@ class pzvip_corebus_item extends tue_sequence_item #(
 
   function int get_burst_length();
     if ((burst_length == 0) && (!is_message_command(command))) begin
-      burst_length  =
-        calc_burst_length(configuration, command, address, length);
+      burst_length  = calc_burst_length(configuration, command, address, length);
     end
     return burst_length;
   endfunction
@@ -366,7 +365,7 @@ class pzvip_corebus_master_item extends pzvip_corebus_item;
     solve command before address;
 
     (address >> this.configuration.address_width) == 0;
-    if ((this.configuration.profile == PZVIP_COREBUS_MEMORY_H) && is_full_write_command(command)) {
+    if ((this.configuration.profile != PZVIP_COREBUS_CSR) && is_full_write_command(command)) {
       (address % (this.configuration.data_width / 8) == 0);
     }
   }
@@ -384,31 +383,29 @@ class pzvip_corebus_master_item extends pzvip_corebus_item;
       length inside {[1:this.configuration.max_length]};
     }
 
-    if ((this.configuration.profile == PZVIP_COREBUS_MEMORY_H) && is_full_write_command(command)) {
+    if ((this.configuration.profile != PZVIP_COREBUS_CSR) && is_full_write_command(command)) {
       (length % this.configuration.data_size) == 0;
     }
   }
 
   constraint c_valid_burst_length {
     solve command, address before burst_length;
-    if (this.configuration.profile == PZVIP_COREBUS_MEMORY_H) {
-      if (is_atomic_command(command)) {
-        burst_length ==
-          (length + (this.configuration.data_size - 1)) / this.configuration.data_size;
-      }
-      else if (is_message_command(command)) {
-        burst_length == 0;
-      }
-      else {
-        burst_length == (
+
+    if (this.configuration.profile == PZVIP_COREBUS_CSR) {
+      burst_length == length;
+    }
+    else if (is_atomic_command(command)) {
+      burst_length == (length + (this.configuration.data_size - 1)) / this.configuration.data_size;
+    }
+    else if (is_message_command(command)) {
+      burst_length == 0;
+    }
+    else {
+      burst_length == (
           length +
           ((address >> this.configuration.address_shift) % this.configuration.data_size) +
           (this.configuration.data_size - 1)
         ) / this.configuration.data_size;
-      }
-    }
-    else {
-      burst_length == length;
     }
   }
 

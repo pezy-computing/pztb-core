@@ -30,7 +30,7 @@ module tb_pzcorebus_slave_bfm
   bit                         write_command_done;
   bit                         write_data_done;
 
-  if ((BUS_CONFIG.profile != PZCOREBUS_CSR) && WAIT_FOR_MDATA_LAST) begin
+  if (is_memory_profile(BUS_CONFIG) && WAIT_FOR_MDATA_LAST) begin
     always_ff @(posedge i_clk, negedge i_rst_n) begin
       if (!i_rst_n) begin
         write_command_done  <= '0;

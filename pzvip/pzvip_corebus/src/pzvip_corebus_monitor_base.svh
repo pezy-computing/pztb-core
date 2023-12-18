@@ -104,16 +104,17 @@ class pzvip_corebus_monitor_base #(
     begin_time  = `tue_current_time;
     forever @(vif.monitor_cb) begin
       if (vif.monitor_cb.mcmd_valid) begin
+        sample_command(begin_time, command_item, request_item);
+
         stall_cycles  = 0;
         while (!vif.monitor_cb.scmd_accept) begin
           @(vif.monitor_cb);
           stall_cycles  += 1;
         end
-
-        sample_command(begin_time, command_item, request_item);
         if (pa_writer != null) begin
           pa_writer.write_command_item(request_item.get_inst_id(), command_item, stall_cycles);
         end
+
         end_command(request_item);
       end
 
@@ -208,13 +209,13 @@ class pzvip_corebus_monitor_base #(
     gap_cycles    = 0;
     forever @(vif.monitor_cb) begin
       if (vif.monitor_cb.mdata_valid) begin
+        sample_request_data(begin_time, storage);
+
         stall_cycles  = 0;
         while (!vif.monitor_cb.sdata_accept) begin
           @(vif.monitor_cb);
           stall_cycles  += 1;
         end
-
-        sample_request_data(begin_time, storage);
         if (pa_writer != null) begin
           pa_writer.write_request_data_item(
             storage.item.get_inst_id(),
@@ -222,11 +223,11 @@ class pzvip_corebus_monitor_base #(
             stall_cycles, gap_cycles
           );
         end
+
         if (storage.request_data_items[$].last) begin
           end_data(storage.pack_request());
           storage = null;
         end
-
         gap_cycles  = 0;
       end
       else if (storage != null) begin
@@ -285,18 +286,17 @@ class pzvip_corebus_monitor_base #(
     gap_cycles    = 0;
     forever @(vif.monitor_cb) begin
       if (vif.monitor_cb.sresp_valid) begin
-        stall_cycles  = 0;
-        while (!vif.monitor_cb.mresp_accept) begin
-          @(vif.monitor_cb);
-          stall_cycles  += 1;
-        end
-
         sample_response(begin_time, storage);
         if (storage == null) begin
           begin_time =  `tue_current_time;
           continue;
         end
 
+        stall_cycles  = 0;
+        while (!vif.monitor_cb.mresp_accept) begin
+          @(vif.monitor_cb);
+          stall_cycles  += 1;
+        end
         if (pa_writer != null) begin
           pa_writer.write_response_item(
             storage.item.get_inst_id(),

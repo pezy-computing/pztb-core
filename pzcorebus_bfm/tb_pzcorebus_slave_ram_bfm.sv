@@ -228,22 +228,32 @@ interface automatic tb_pzcorebus_slave_ram_bfm
 
   task update_memory();
     while ((write_requests.size() > 0) && (CSRBUS || (write_data_queue.size() > 0))) begin
-      bit last;
+      pzcorebus_data        data;
+      pzcorebus_byte_enable byte_enable;
+      bit                   last;
 
       if (!write_busy) begin
         write_busy    = 1;
         write_pointer = write_requests[0].address[POINTER_LSB+:POINTER_WIDTH];
       end
 
-      if (CSRBUS) begin
-        put(write_pointer, write_requests[0].data, '1, 1);
-        last  = 1;
-      end
-      else begin
-        put(write_pointer, write_data_queue[0].data, write_data_queue[0].byte_enable, 1);
-        last  = write_data_queue[0].last;
+      if (!CSRBUS) begin
+        last        = write_data_queue[0].last;
+        data        = write_data_queue[0].data;
+        byte_enable = write_data_queue[0].byte_enable;
         void'(write_data_queue.pop_front());
       end
+      else begin
+        last  = '1;
+        data  = write_requests[0].data;
+        if (BUS_CONFIG.use_byte_enable) begin
+          byte_enable = write_requests[0].byte_enable;
+        end
+        else begin
+          byte_enable = 4'hF;
+        end
+      end
+      put(write_pointer, data, byte_enable, 1);
 
       if (last) begin
         write_busy  = 0;
@@ -461,13 +471,8 @@ interface automatic tb_pzcorebus_slave_ram_bfm
     pzcorebus_data          mask;
     bit [POINTER_WIDTH-1:0] pointer;
 
-    if (CSRBUS) begin
-      mask  = '1;
-    end
-    else begin
-      for (int i = 0;i < BYTE_WIDTH;++i) begin
-        mask[8*i+:8]  = {8{byte_enable[i]}};
-      end
+    for (int i = 0;i < BYTE_WIDTH;++i) begin
+      mask[8*i+:8]  = {8{byte_enable[i]}};
     end
 
     if (is_pointer) begin

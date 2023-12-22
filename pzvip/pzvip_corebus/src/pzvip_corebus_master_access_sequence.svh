@@ -119,7 +119,7 @@ class pzvip_corebus_master_access_sequence extends pzvip_corebus_master_sequence
   constraint c_valid_byte_enable {
     solve command, burst_length before byte_enable;
 
-    if (this.configuration.profile == PZVIP_COREBUS_CSR) {
+    if (!this.configuration.use_byte_enable) {
       byte_enable.size() == 0;
     }
     else if (is_command_with_data(command)) {
@@ -229,8 +229,10 @@ class pzvip_corebus_master_access_sequence extends pzvip_corebus_master_sequence
     request.response_accept_delay = new[accept_delay.size()](accept_delay);
     if (request.is_request_with_data()) begin
       request.request_data  = new[burst_length](request_data);
-      if (configuration.profile != PZVIP_COREBUS_CSR) begin
+      if (configuration.use_byte_enable) begin
         request.byte_enable = new[burst_length](byte_enable);
+      end
+      if (configuration.profile != PZVIP_COREBUS_CSR) begin
         request.data_delay  = new[burst_length](data_delay);
       end
     end

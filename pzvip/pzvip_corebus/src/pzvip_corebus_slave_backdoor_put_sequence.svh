@@ -35,11 +35,11 @@ class pzvip_corebus_slave_backdoor_put_sequence extends pzvip_corebus_slave_sequ
   constraint c_valid_byte_enable {
     solve length before byte_enable;
 
-    if (this.configuration.profile == PZVIP_COREBUS_CSR) {
-      byte_enable.size() == 0;
+    if (this.configuration.use_byte_enable) {
+      byte_enable.size() == length;
     }
     else {
-      byte_enable.size() == length;
+      byte_enable.size() == 0;
     }
 
     foreach (byte_enable[i]) {
@@ -63,11 +63,11 @@ class pzvip_corebus_slave_backdoor_put_sequence extends pzvip_corebus_slave_sequ
   endtask
 
   local function pzvip_corebus_byte_enable get_byte_enable(int index);
-    if (configuration.profile == PZVIP_COREBUS_CSR) begin
-      return '1;
+    if (configuration.use_byte_enable) begin
+      return byte_enable[index];
     end
     else begin
-      return byte_enable[index];
+      return '1;
     end
   endfunction
 

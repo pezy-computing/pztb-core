@@ -111,6 +111,9 @@ class pzvip_corebus_pa_writer extends pzvip_pa_writer_param_base #(
     write_bit_vector_value(uid, "request_info", item.info, configuration.request_info_width);
     if ((configuration.profile == PZVIP_COREBUS_CSR) && is_write_command(item.command)) begin
       write_bit_vector_value(uid, "data", item.data, configuration.data_width);
+      if (configuration.use_byte_enable) begin
+        write_bit_vector_value(uid, "byte_enable", item.byte_enable, configuration.byte_enable_width);
+      end
     end
 
     create_bus_activity(uid, "pzvip_corebus_command_bus_activity", item.begin_time, stall_cycles, -1);

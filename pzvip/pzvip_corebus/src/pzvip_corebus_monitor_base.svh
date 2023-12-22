@@ -146,6 +146,9 @@ class pzvip_corebus_monitor_base #(
       item.message_code = '0;
       if (is_write_command(item.command)) begin
         item.data = vif.monitor_cb.mdata & data_mask;
+        if (configuration.use_byte_enable) begin
+          item.byte_enable  = vif.monitor_cb.mdata_byteen & byte_enable_mask;
+        end
       end
     end
     else if (is_message_command(item.command)) begin

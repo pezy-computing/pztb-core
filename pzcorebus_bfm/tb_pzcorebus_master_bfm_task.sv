@@ -176,15 +176,17 @@ interface automatic tb_pzcrebus_master_bfm_task
     pzcorebus_id            id,
     pzcorebus_addrss        address,
     int                     burst_length,
-    pzcorebus_data          data
+    pzcorebus_data          data,
+    pzcorebus_byte_enable   byte_enable
   );
     pzcorebus_command command;
 
-    command.command = command_type;
-    command.id      = (id & i_id_mask) | i_id_base;
-    command.address = address;
-    command.length  = calc_length(command_type, address, burst_length);
-    command.data    = data;
+    command.command     = command_type;
+    command.id          = (id & i_id_mask) | i_id_base;
+    command.address     = address;
+    command.length      = calc_length(command_type, address, burst_length);
+    command.data        = data;
+    command.byte_enable = byte_enable;
 
     cb.command_valid  <= '1;
     cb.command        <= command;
@@ -314,10 +316,11 @@ interface automatic tb_pzcrebus_master_bfm_task
 //--------------------------------------------------------------
   task cfg_write(
     pzcorebus_addrss  address,
-    bit [31:0]        data
+    bit [31:0]        data,
+    bit [3:0]         byte_enable = '1
   );
     get_bus_access(0, 0);
-    send_command(PZCOREBUS_WRITE, 0, address, 1, data);
+    send_command(PZCOREBUS_WRITE, 0, address, 1, data, byte_enable);
     release_bus_access();
   endtask
 
@@ -331,7 +334,7 @@ interface automatic tb_pzcrebus_master_bfm_task
     receiver  = get_response_receiver(id);
 
     get_bus_access(1, id);
-    send_command(PZCOREBUS_READ, id, address, 1, 0);
+    send_command(PZCOREBUS_READ, id, address, 1, 0, 0);
     release_bus_access();
 
     receiver.wait_for_done();
@@ -347,7 +350,7 @@ interface automatic tb_pzcrebus_master_bfm_task
   );
     get_bus_access(0, 0);
     fork
-      send_command(PZCOREBUS_WRITE, 0, address, data.size(), 0);
+      send_command(PZCOREBUS_WRITE, 0, address, data.size(), 0, 0);
       send_write_data(address, data, byte_enable);
     join
     release_bus_access();
@@ -364,7 +367,7 @@ interface automatic tb_pzcrebus_master_bfm_task
     receiver  = get_response_receiver(id);
     get_bus_access(1, id);
     fork
-      send_command(PZCOREBUS_WRITE_NON_POSTED, id, address, data.size(), 0);
+      send_command(PZCOREBUS_WRITE_NON_POSTED, id, address, data.size(), 0, 0);
       send_write_data(address, data, byte_enable);
     join
     release_bus_access();
@@ -384,7 +387,7 @@ interface automatic tb_pzcrebus_master_bfm_task
     receiver  = get_response_receiver(id);
     get_bus_access(1, id);
     fork
-      send_command(PZCOREBUS_WRITE_NON_POSTED, id, address, data.size(), 0);
+      send_command(PZCOREBUS_WRITE_NON_POSTED, id, address, data.size(), 0, 0);
       send_write_data(address, data, byte_enable);
     join
     release_bus_access();
@@ -422,7 +425,7 @@ interface automatic tb_pzcrebus_master_bfm_task
     receiver  = get_response_receiver(id);
 
     get_bus_access(1, id);
-    send_command(PZCOREBUS_READ, id, address, burst_length, 0);
+    send_command(PZCOREBUS_READ, id, address, burst_length, 0, 0);
     release_bus_access();
 
     receiver.wait_for_done();
@@ -449,7 +452,7 @@ interface automatic tb_pzcrebus_master_bfm_task
     receiver  = get_response_receiver(id);
 
     get_bus_access(1, id);
-    send_command(PZCOREBUS_READ, id, address, burst_length, 0);
+    send_command(PZCOREBUS_READ, id, address, burst_length, 0, 0);
     release_bus_access();
 
     fork
@@ -484,7 +487,7 @@ interface automatic tb_pzcrebus_master_bfm_task
 
     get_bus_access(0, 0);
     fork
-      send_command(PZCOREBUS_ATOMIC, 0, address, 1, 0);
+      send_command(PZCOREBUS_ATOMIC, 0, address, 1, 0, 0);
       send_write_data(0, data_queue, byte_enable_queue);
     join
     release_bus_access();
@@ -506,7 +509,7 @@ interface automatic tb_pzcrebus_master_bfm_task
     receiver  = get_response_receiver(id);
     get_bus_access(1, id);
     fork
-      send_command(PZCOREBUS_ATOMIC_NON_POSTED, id, address, 1, 0);
+      send_command(PZCOREBUS_ATOMIC_NON_POSTED, id, address, 1, 0, 0);
       send_write_data(0, data_queue, byte_enable_queue);
     join
     release_bus_access();
@@ -532,7 +535,7 @@ interface automatic tb_pzcrebus_master_bfm_task
     receiver  = get_response_receiver(id);
     get_bus_access(1, id);
     fork
-      send_command(PZCOREBUS_ATOMIC_NON_POSTED, id, address, 1, 0);
+      send_command(PZCOREBUS_ATOMIC_NON_POSTED, id, address, 1, 0, 0);
       send_write_data(0, data_queue, byte_enable_queue);
     join
     release_bus_access();
@@ -550,7 +553,7 @@ interface automatic tb_pzcrebus_master_bfm_task
     int               message_code
   );
     get_bus_access(0, 0);
-    send_command(PZCOREBUS_MESSAGE, 0, address, message_code, 0);
+    send_command(PZCOREBUS_MESSAGE, 0, address, message_code, 0, 0);
     release_bus_access();
   endtask
 
@@ -563,7 +566,7 @@ interface automatic tb_pzcrebus_master_bfm_task
 
     receiver  = get_response_receiver(id);
     get_bus_access(1, id);
-    send_command(PZCOREBUS_MESSAGE_NON_POSTED, id, address, message_code, 0);
+    send_command(PZCOREBUS_MESSAGE_NON_POSTED, id, address, message_code, 0, 0);
     release_bus_access();
 
     receiver.wait_for_done();

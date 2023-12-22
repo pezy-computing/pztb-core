@@ -129,6 +129,10 @@ class pzvip_corebus_item extends tue_sequence_item #(
       if (is_write_request()) begin
         request_data    = new[1];
         request_data[0] = item.data;
+        if (configuration.use_byte_enable) begin
+          byte_enable     = new[1];
+          byte_enable[0]  = item.byte_enable;
+        end
       end
     end
     else if (is_message_request()) begin
@@ -146,7 +150,7 @@ class pzvip_corebus_item extends tue_sequence_item #(
 
   function void put_request_data(const ref pzvip_corebus_request_data_item items[$]);
     request_data  = new[items.size()];
-    if (configuration.profile != PZVIP_COREBUS_CSR) begin
+    if (configuration.use_byte_enable) begin
       byte_enable = new[items.size()];
     end
 
@@ -163,11 +167,11 @@ class pzvip_corebus_item extends tue_sequence_item #(
   endfunction
 
   function pzvip_corebus_byte_enable get_byte_enable(int index);
-    if (configuration.profile == PZVIP_COREBUS_CSR) begin
-      return (1 << (configuration.data_width / 8)) - 1;
+    if (configuration.use_byte_enable) begin
+      return byte_enable[index];
     end
     else begin
-      return byte_enable[index];
+      return (1 << (configuration.data_width / 8)) - 1;
     end
   endfunction
 
@@ -439,7 +443,7 @@ class pzvip_corebus_master_item extends pzvip_corebus_item;
   constraint c_valid_byte_enable {
     solve command, burst_length before byte_enable;
 
-    if (this.configuration.profile == PZVIP_COREBUS_CSR) {
+    if (!this.configuration.use_byte_enable) {
       byte_enable.size == 0;
     }
     else if (is_command_with_data(command)) {

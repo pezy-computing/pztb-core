@@ -17,6 +17,7 @@ class pzvip_corebus_configuration extends tue_configuration;
   rand  int                             unit_data_width;
   rand  int                             max_data_width;
   rand  int                             data_width;
+  rand  bit                             use_byte_enable;
   rand  int                             byte_enable_width;
   rand  int                             unit_enable_width;
   rand  int                             response_info_width;
@@ -130,12 +131,12 @@ class pzvip_corebus_configuration extends tue_configuration;
   }
 
   constraint c_valid_byte_enable_width {
-    solve profile, data_width before byte_enable_width;
-    if (profile == PZVIP_COREBUS_CSR) {
-      byte_enable_width == 0;
+    solve data_width, use_byte_enable before byte_enable_width;
+    if (use_byte_enable) {
+      byte_enable_width == (data_width / 8);
     }
     else {
-      byte_enable_width == (data_width / 8);
+      byte_enable_width == 0;
     }
   }
 
@@ -257,23 +258,18 @@ class pzvip_corebus_configuration extends tue_configuration;
   }
 
   constraint c_valid_unit_byte_enable_width {
-    solve profile, unit_data_width before unit_byte_enable_width;
-    if (profile == PZVIP_COREBUS_CSR) {
-      unit_byte_enable_width == 0;
+    solve use_byte_enable, unit_data_width before unit_byte_enable_width;
+    if (use_byte_enable) {
+      unit_byte_enable_width == (unit_data_width / 8);
     }
     else {
-      unit_byte_enable_width == (unit_data_width / 8);
+      unit_byte_enable_width == 0;
     }
   }
 
   constraint c_valid_unit_byte_enable_mask {
-    solve profile, unit_byte_enable_width before unit_byte_enable_mask;
-    if (profile == PZVIP_COREBUS_CSR) {
-      unit_byte_enable_mask == 0;
-    }
-    else {
-      unit_byte_enable_mask == ((1 << unit_byte_enable_width) - 1);
-    }
+    solve unit_byte_enable_width before unit_byte_enable_mask;
+    unit_byte_enable_mask == ((1 << unit_byte_enable_width) - 1);
   }
 
   function new(string name = "pzvip_corebus_configuration");
@@ -305,6 +301,7 @@ class pzvip_corebus_configuration extends tue_configuration;
     `uvm_field_int(unit_data_width, UVM_DEFAULT | UVM_DEC)
     `uvm_field_int(max_data_width, UVM_DEFAULT | UVM_DEC)
     `uvm_field_int(data_width, UVM_DEFAULT | UVM_DEC)
+    `uvm_field_int(use_byte_enable, UVM_DEFAULT | UVM_BIN)
     `uvm_field_int(byte_enable_width, UVM_DEFAULT | UVM_DEC)
     `uvm_field_int(unit_enable_width, UVM_DEFAULT | UVM_DEC)
     `uvm_field_int(response_info_width, UVM_DEFAULT | UVM_DEC)

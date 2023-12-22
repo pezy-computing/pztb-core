@@ -131,6 +131,9 @@ class pzvip_corebus_master_driver extends pzvip_corebus_component_base #(
       vif.master_cb.minfo       <= get_minfo(item);
       if (configuration.profile == PZVIP_COREBUS_CSR) begin
         vif.master_cb.mdata <= item.request_data[0];
+        if (configuration.use_byte_enable) begin
+          vif.master_cb.mdata_byteen  <= item.byte_enable[0];
+        end
       end
 
       do begin

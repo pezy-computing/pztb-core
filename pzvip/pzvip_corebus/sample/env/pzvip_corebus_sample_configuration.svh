@@ -11,6 +11,7 @@ class pzvip_corebus_sample_configuration extends tue_configuration;
     corebus_cfg.profile         == profile;
     corebus_cfg.id_width        == 4;
     corebus_cfg.address_width   == 32;
+    corebus_cfg.use_byte_enable == 1;
     if (profile == PZVIP_COREBUS_MEMORY_H) {
       corebus_cfg.max_length      == 32;
       corebus_cfg.unit_data_width == 32;

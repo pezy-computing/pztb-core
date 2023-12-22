@@ -99,6 +99,7 @@ package pzvip_corebus_types_pkg;
     pzvip_corebus_message_code  message_code;
     pzvip_corebus_request_info  info;
     pzvip_corebus_data          data;
+    pzvip_corebus_byte_enable   byte_enable;
   } pzvip_corebus_command_item;
 
   typedef struct {

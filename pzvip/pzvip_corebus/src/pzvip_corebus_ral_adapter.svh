@@ -9,9 +9,13 @@ class pzvip_corebus_ral_adapter extends tue_object_base #(
 
   function new(string name = "pzvip_corebus_ral_adapter");
     super.new(name);
-    supports_byte_enable  = 0;
-    provides_responses    = 1;
-    write_command         = PZVIP_COREBUS_WRITE;
+    provides_responses  = 1;
+    write_command       = PZVIP_COREBUS_WRITE;
+  endfunction
+
+  function void set_configuration(tue_configuration configuration);
+    super.set_configuration(configuration);
+    supports_byte_enable  = this.configuration.use_byte_enable;
   endfunction
 
   function void use_non_posted_write();
@@ -28,6 +32,9 @@ class pzvip_corebus_ral_adapter extends tue_object_base #(
       if (rw.kind == UVM_WRITE) {
         command         == write_command;
         request_data[0] == rw.data;
+        if (supports_byte_enable) {
+          byte_enable[0] == rw.byte_en;
+        }
       }
       else {
         command == PZVIP_COREBUS_READ;

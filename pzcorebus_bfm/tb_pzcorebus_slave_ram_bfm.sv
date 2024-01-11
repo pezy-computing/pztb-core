@@ -19,7 +19,7 @@ interface automatic tb_pzcorebus_slave_ram_bfm
   typedef bit [BUS_CONFIG.address_width-1:0]              pzcorebus_addrss;
   typedef bit [BUS_CONFIG.data_width-1:0]                 pzcorebus_data;
   typedef bit [get_length_width(BUS_CONFIG, 1)-1:0]       pzcorebus_length;
-  typedef bit [get_byte_enable_width(BUS_CONFIG, 1)-1:0]  pzcorebus_byte_enable;
+  typedef bit [BUS_CONFIG.data_width/8-1:0]               pzcorebus_byte_enable;
   typedef bit [get_unit_enable_width(BUS_CONFIG, 1)-1:0]  pzcorebus_unit_enable;
 
   localparam  bit     CSRBUS          = is_csr_profile(BUS_CONFIG);
@@ -250,7 +250,7 @@ interface automatic tb_pzcorebus_slave_ram_bfm
           byte_enable = write_requests[0].byte_enable;
         end
         else begin
-          byte_enable = 4'hF;
+          byte_enable = '1;
         end
       end
       put(write_pointer, data, byte_enable, 1);

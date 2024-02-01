@@ -66,7 +66,7 @@ package pzvip_corebus_types_pkg;
   `endif
 
   `ifndef PZVIP_COREBUS_MAX_DATA_WIDTH
-    `define PZVIP_COREBUS_MAX_DATA_WIDTH  1024
+    `define PZVIP_COREBUS_MAX_DATA_WIDTH  512
   `endif
 
   `ifndef PZVIP_COREBUS_MAX_BYTE_ENABLE_WIDTH

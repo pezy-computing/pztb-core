@@ -559,7 +559,7 @@ class pzvip_corebus_slave_driver extends pzvip_corebus_component_base #(
 
     burst_index     = response_item.burst_index;
     burst_offset    = response_item.burst_offset;
-    burst_boundary  = configuration.max_data_width / configuration.data_width;
+    burst_boundary  = (8 * configuration.response_boundary) / configuration.data_width;
     min_size        = configuration.min_interleave_size;
     max_size        = configuration.max_interleave_size;
     remainings      = response_item.item.get_burst_length() - burst_index;

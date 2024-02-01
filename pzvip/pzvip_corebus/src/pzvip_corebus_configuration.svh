@@ -21,6 +21,7 @@ class pzvip_corebus_configuration extends tue_configuration;
   rand  int                             byte_enable_width;
   rand  int                             unit_enable_width;
   rand  int                             response_info_width;
+  rand  int                             response_boundary;
   rand  bit                             monitor_read_data;
   rand  int                             weight_no_error;
   rand  int                             weight_error;
@@ -156,6 +157,21 @@ class pzvip_corebus_configuration extends tue_configuration;
 
   constraint c_default_response_info_width {
     soft response_info_width == 0;
+  }
+
+  constraint c_valid_response_boundary {
+    solve profile, max_data_width before response_boundary;
+    if (profile == PZVIP_COREBUS_MEMORY_H) {
+      response_boundary >= (max_data_width / 8);
+      (response_boundary % (max_data_width / 8)) == 0;
+    }
+    else {
+      response_boundary == 0;
+    }
+  }
+
+  constraint c_default_response_boundary {
+    soft response_boundary == (max_data_width / 8);
   }
 
   constraint c_default_monitor_read_data {
@@ -305,6 +321,7 @@ class pzvip_corebus_configuration extends tue_configuration;
     `uvm_field_int(byte_enable_width, UVM_DEFAULT | UVM_DEC)
     `uvm_field_int(unit_enable_width, UVM_DEFAULT | UVM_DEC)
     `uvm_field_int(response_info_width, UVM_DEFAULT | UVM_DEC)
+    `uvm_field_int(response_boundary, UVM_DEFAULT | UVM_DEC)
     `uvm_field_int(monitor_read_data, UVM_DEFAULT | UVM_BIN)
     `uvm_field_int(weight_no_error, UVM_DEFAULT | UVM_DEC)
     `uvm_field_int(weight_error, UVM_DEFAULT | UVM_DEC)

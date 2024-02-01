@@ -13,10 +13,11 @@ class pzvip_corebus_sample_configuration extends tue_configuration;
     corebus_cfg.address_width   == 32;
     corebus_cfg.use_byte_enable == 1;
     if (profile == PZVIP_COREBUS_MEMORY_H) {
-      corebus_cfg.max_length      == 32;
-      corebus_cfg.unit_data_width == 32;
-      corebus_cfg.max_data_width  == 256;
-      corebus_cfg.data_width      == 128;
+      corebus_cfg.max_length        == 32;
+      corebus_cfg.unit_data_width   == 32;
+      corebus_cfg.max_data_width    == 256;
+      corebus_cfg.data_width        == 128;
+      corebus_cfg.response_boundary == 64;
     }
     else if (profile == PZVIP_COREBUS_MEMORY_L) {
       corebus_cfg.max_length      == 32;

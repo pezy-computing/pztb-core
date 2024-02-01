@@ -257,7 +257,10 @@ class pzvip_corebus_slave_driver extends pzvip_corebus_component_base #(
     forever begin
       do_reset();
       fork
-        main();
+        queue_item();
+        drive_command_accept();
+        drive_data_accept();
+        drive_response();
         @(negedge vif.reset_n);
       join_any
       disable fork;
@@ -294,15 +297,6 @@ class pzvip_corebus_slave_driver extends pzvip_corebus_component_base #(
     end
 
     @(posedge vif.reset_n);
-  endtask
-
-  protected task main();
-    fork
-      queue_item();
-      drive_command_accept();
-      drive_data_accept();
-      drive_response();
-    join
   endtask
 
   protected task queue_item();

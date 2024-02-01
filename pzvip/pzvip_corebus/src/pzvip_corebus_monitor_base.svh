@@ -23,7 +23,9 @@ class pzvip_corebus_monitor_base #(
     forever begin
       do_reset();
       fork
-        main();
+        monitor_command();
+        monitor_request_data();
+        monitor_response();
         @(negedge vif.monitor_cb.reset_n);
       join_any
       disable fork;
@@ -85,14 +87,6 @@ class pzvip_corebus_monitor_base #(
     response_storages.delete();
 
     @(posedge vif.monitor_cb.reset_n);
-  endtask
-
-  protected task main();
-    fork
-      monitor_command();
-      monitor_request_data();
-      monitor_response();
-    join
   endtask
 
   protected task monitor_command();

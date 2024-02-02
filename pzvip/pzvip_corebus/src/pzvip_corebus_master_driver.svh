@@ -29,14 +29,25 @@ class pzvip_corebus_master_driver extends pzvip_corebus_component_base #(
   task run_phase(uvm_phase phase);
     forever begin
       do_reset();
-      fork
-        queue_request();
-        drive_command();
-        drive_write_data();
-        drive_response_accept();
-        monitor_response();
-        @(negedge vif.reset_n);
-      join_any
+      if (configuration.profile == PZVIP_COREBUS_CSR) begin
+        fork
+          queue_request();
+          drive_command();
+          drive_response_accept();
+          monitor_response();
+          @(negedge vif.reset_n);
+        join_any
+      end
+      else begin
+        fork
+          queue_request();
+          drive_command();
+          drive_write_data();
+          drive_response_accept();
+          monitor_response();
+          @(negedge vif.reset_n);
+        join_any
+      end
       disable fork;
     end
   endtask
@@ -170,10 +181,6 @@ class pzvip_corebus_master_driver extends pzvip_corebus_component_base #(
   protected task drive_write_data();
     pzvip_corebus_item  item;
     int                 burst_length;
-
-    if (profile == PZVIP_COREBUS_CSR) begin
-      return;
-    end
 
     forever begin
       get_next_write_data_item(item);

@@ -256,13 +256,23 @@ class pzvip_corebus_slave_driver extends pzvip_corebus_component_base #(
   task run_phase(uvm_phase phase);
     forever begin
       do_reset();
-      fork
-        queue_item();
-        drive_command_accept();
-        drive_data_accept();
-        drive_response();
-        @(negedge vif.reset_n);
-      join_any
+      if (configuration.profile == PZVIP_COREBUS_CSR) begin
+        fork
+          queue_item();
+          drive_command_accept();
+          drive_response();
+          @(negedge vif.reset_n);
+        join_any
+      end
+      else begin
+        fork
+          queue_item();
+          drive_command_accept();
+          drive_data_accept();
+          drive_response();
+          @(negedge vif.reset_n);
+        join_any
+      end
       disable fork;
     end
   endtask
@@ -375,10 +385,6 @@ class pzvip_corebus_slave_driver extends pzvip_corebus_component_base #(
 
   protected task drive_data_accept();
     int delay;
-
-    if (profile == PZVIP_COREBUS_CSR) begin
-      return;
-    end
 
     forever @(vif.slave_cb) begin
       if (configuration.force_data_accept_low) begin

@@ -22,12 +22,21 @@ class pzvip_corebus_monitor_base #(
   task run_phase(uvm_phase phase);
     forever begin
       do_reset();
-      fork
-        monitor_command();
-        monitor_request_data();
-        monitor_response();
-        @(negedge vif.monitor_cb.reset_n);
-      join_any
+      if (configuration.profile == PZVIP_COREBUS_CSR) begin
+        fork
+          monitor_command();
+          monitor_response();
+          @(negedge vif.monitor_cb.reset_n);
+        join_any
+      end
+      else begin
+        fork
+          monitor_command();
+          monitor_request_data();
+          monitor_response();
+          @(negedge vif.monitor_cb.reset_n);
+        join_any
+      end
       disable fork;
     end
   endtask
@@ -196,10 +205,6 @@ class pzvip_corebus_monitor_base #(
     time                          begin_time;
     int                           stall_cycles;
     int                           gap_cycles;
-
-    if (profile == PZVIP_COREBUS_CSR) begin
-      return;
-    end
 
     begin_time    = `tue_current_time;
     stall_cycles  = 0;

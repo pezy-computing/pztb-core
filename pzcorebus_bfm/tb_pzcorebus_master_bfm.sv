@@ -12,7 +12,8 @@ module tb_pzcorebus_master_bfm
   parameter int               PORT_ID_WIDTH           = BUS_CONFIG.id_width - LOCAL_ID_WIDTH,
   parameter bit               USE_VIP                 = 1,
   parameter bit               USE_NON_POSTED_ID_LOCK  = 1,
-  parameter int               ACTUAL_PORT_ID_WIDTH    = (PORT_ID_WIDTH > 0) ? PORT_ID_WIDTH : 1
+  parameter int               ACTUAL_PORT_ID_WIDTH    = (PORT_ID_WIDTH > 0) ? PORT_ID_WIDTH : 1,
+  parameter bit               SVA_CHECKER             = 1
 )(
   input var                             i_clk,
   input var                             i_rst_n,
@@ -82,6 +83,20 @@ module tb_pzcorebus_master_bfm
       .i_id_base  (id_base    ),
       .i_id_mask  (id_mask    ),
       .master_if  (master_if  )
+    );
+  end
+
+//--------------------------------------------------------------
+//  SVA checker
+//--------------------------------------------------------------
+  if (PZCOREBUS_ENABLE_SVA_CHECKER) begin : g_sva
+    pzcorebus_response_sva_checker #(
+      .BUS_CONFIG   (BUS_CONFIG   ),
+      .SVA_CHECKER  (SVA_CHECKER  )
+    ) u_sva_checker (
+      .i_clk    (i_clk      ),
+      .i_rst_n  (i_rst_n    ),
+      .bus_if   (master_if  )
     );
   end
 endmodule

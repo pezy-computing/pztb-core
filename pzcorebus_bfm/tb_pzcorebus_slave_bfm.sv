@@ -16,7 +16,8 @@ module tb_pzcorebus_slave_bfm
   parameter pztb_mem_init     DEFAULT_VALUE           = PZTB_MEM_INIT_X,
   parameter bit               USE_VIP                 = 1,
   parameter int               ATOMIC_FLAG             = -1,
-  parameter bit               WAIT_FOR_MDATA_LAST     = 0
+  parameter bit               WAIT_FOR_MDATA_LAST     = 0,
+  parameter bit               SVA_CHECKER             = 1
 )(
   input var           i_clk,
   input var           i_rst_n,
@@ -146,5 +147,19 @@ module tb_pzcorebus_slave_bfm
       u_bfm.set_start_delay(RESPONSE_START_DELAY);
       u_bfm.set_default_value(DEFAULT_VALUE);
     end
+  end
+
+//--------------------------------------------------------------
+//  SVA checker
+//--------------------------------------------------------------
+  if (PZCOREBUS_ENABLE_SVA_CHECKER) begin : g_sva
+    pzcorebus_request_sva_checker #(
+      .BUS_CONFIG   (BUS_CONFIG   ),
+      .SVA_CHECKER  (SVA_CHECKER  )
+    ) u_sva_checker (
+      .i_clk    (i_clk    ),
+      .i_rst_n  (i_rst_n  ),
+      .bus_if   (slave_if )
+    );
   end
 endmodule

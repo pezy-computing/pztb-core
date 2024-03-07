@@ -10,6 +10,7 @@ class pzvip_corebus_component_base #(
   protected pzvip_corebus_id            id_mask;
   protected pzvip_corebus_address       address_mask;
   protected pzvip_corebus_length        length_mask;
+  protected pzvip_corebus_request_param request_param_mask;
   protected pzvip_corebus_request_info  request_info_mask;
   protected pzvip_corebus_data          data_mask;
   protected pzvip_corebus_data          unit_data_mask;
@@ -25,6 +26,7 @@ class pzvip_corebus_component_base #(
       id_mask               = `pzvip_corebus_get_mask(configuration.id_width);
       address_mask          = `pzvip_corebus_get_mask(configuration.address_width);
       length_mask           = `pzvip_corebus_get_mask(configuration.length_width);
+      request_param_mask    = `pzvip_corebus_get_mask(configuration.request_param_width);
       request_info_mask     = `pzvip_corebus_get_mask(configuration.request_info_width);
       data_mask             = `pzvip_corebus_get_mask(configuration.data_width);
       byte_enable_mask      = `pzvip_corebus_get_mask(configuration.byte_enable_width);
@@ -35,6 +37,7 @@ class pzvip_corebus_component_base #(
       id_mask               = (configuration.id_width            > 0) ? '1 : '0;
       address_mask          = (configuration.address_width       > 0) ? '1 : '0;
       length_mask           = (configuration.length_width        > 0) ? '1 : '0;
+      request_param_mask    = (configuration.request_param_width > 0) ? '1 : '0;
       request_info_mask     = (configuration.request_info_width  > 0) ? '1 : '0;
       data_mask             = (configuration.data_width          > 0) ? '1 : '0;
       byte_enable_mask      = (configuration.byte_enable_width   > 0) ? '1 : '0;

@@ -133,6 +133,7 @@ class pzvip_corebus_master_driver extends pzvip_corebus_component_base #(
       vif.master_cb.mid         <= item.id;
       vif.master_cb.maddr       <= item.address;
       vif.master_cb.mlength     <= get_mlength(item);
+      vif.master_cb.mparam      <= get_mparam(item);
       vif.master_cb.minfo       <= get_minfo(item);
       if (configuration.profile == PZVIP_COREBUS_CSR) begin
         vif.master_cb.mdata <= item.request_data[0];
@@ -161,11 +162,23 @@ class pzvip_corebus_master_driver extends pzvip_corebus_component_base #(
     if (profile == PZVIP_COREBUS_CSR) begin
       return '0;
     end
+    else begin
+      return item.pack_length();
+    end
+  endfunction
+
+  protected function pzvip_corebus_request_param get_mparam(pzvip_corebus_item item);
+    if (configuration.request_param_width == 0) begin
+      return 0;
+    end
+    else if (item.is_atomic_request()) begin
+      return item.atomic_command;
+    end
     else if (item.is_message_request()) begin
       return item.message_code;
     end
     else begin
-      return item.pack_length();
+      return 0;
     end
   endfunction
 

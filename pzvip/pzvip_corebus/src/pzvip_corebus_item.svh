@@ -4,39 +4,40 @@ class pzvip_corebus_item extends tue_sequence_item #(
   .CONFIGURATION  (pzvip_corebus_configuration  ),
   .STATUS         (pzvip_corebus_status         )
 );
-  rand  pzvip_corebus_command_type  command;
-  rand  pzvip_corebus_id            id;
-  rand  pzvip_corebus_address       address;
-  rand  int                         length;
-  rand  int                         burst_length;
-  rand  pzvip_corebus_message_code  message_code;
-  rand  pzvip_corebus_request_info  request_info;
-  rand  pzvip_corebus_data          request_data[];
-  rand  pzvip_corebus_byte_enable   byte_enable[];
-  rand  pzvip_corebus_response_type response_type;
-  rand  bit                         error[];
-  rand  pzvip_corebus_data          response_data[];
-  rand  pzvip_corebus_response_info response_info[];
-  rand  int                         start_delay;
-  rand  int                         data_delay[];
-  rand  int                         response_delay[];
-  rand  int                         command_accept_delay;
-  rand  int                         data_accept_delay[];
-  rand  int                         response_accept_delay[];
-        uvm_event                   command_begin_event;
-        time                        command_begin_time;
-        uvm_event                   command_end_event;
-        time                        command_end_time;
-        uvm_event                   data_begin_event;
-        time                        data_begin_time;
-        uvm_event                   data_end_event;
-        time                        data_end_time;
-        uvm_event                   response_begin_event;
-        time                        response_begin_time;
-        uvm_event                   response_end_event;
-        time                        response_end_time;
-        bit                         drop_response;
-  rand  bit                         use_response_port;
+  rand  pzvip_corebus_command_type    command;
+  rand  pzvip_corebus_id              id;
+  rand  pzvip_corebus_address         address;
+  rand  int                           length;
+  rand  int                           burst_length;
+  rand  pzvip_corebus_atomic_command  atomic_command;
+  rand  pzvip_corebus_message_code    message_code;
+  rand  pzvip_corebus_request_info    request_info;
+  rand  pzvip_corebus_data            request_data[];
+  rand  pzvip_corebus_byte_enable     byte_enable[];
+  rand  pzvip_corebus_response_type   response_type;
+  rand  bit                           error[];
+  rand  pzvip_corebus_data            response_data[];
+  rand  pzvip_corebus_response_info   response_info[];
+  rand  int                           start_delay;
+  rand  int                           data_delay[];
+  rand  int                           response_delay[];
+  rand  int                           command_accept_delay;
+  rand  int                           data_accept_delay[];
+  rand  int                           response_accept_delay[];
+        uvm_event                     command_begin_event;
+        time                          command_begin_time;
+        uvm_event                     command_end_event;
+        time                          command_end_time;
+        uvm_event                     data_begin_event;
+        time                          data_begin_time;
+        uvm_event                     data_end_event;
+        time                          data_end_time;
+        uvm_event                     response_begin_event;
+        time                          response_begin_time;
+        uvm_event                     response_end_event;
+        time                          response_end_time;
+        bit                           drop_response;
+  rand  bit                           use_response_port;
 
   constraint c_default_use_response_port {
     soft use_response_port == 0;
@@ -120,9 +121,10 @@ class pzvip_corebus_item extends tue_sequence_item #(
   endfunction
 
   function void put_command(ref pzvip_corebus_command_item item);
-    command = item.command;
-    id      = item.id;
-    address = item.address;
+    command       = item.command;
+    id            = item.id;
+    address       = item.address;
+    request_info  = item.info;
     if (configuration.profile == PZVIP_COREBUS_CSR) begin
       length        = 0;
       message_code  = '0;
@@ -135,16 +137,20 @@ class pzvip_corebus_item extends tue_sequence_item #(
         end
       end
     end
+    else if (is_atomic_request()) begin
+      length          = item.length;
+      atomic_command  = item.atomic_command;
+      message_code    = 0;
+    end
     else if (is_message_request()) begin
-      length        = 0;
-      message_code  = item.message_code;
+      length          = 0;
+      atomic_command  = 0;
+      message_code    = item.message_code;
     end
     else begin
-      length        = item.length;
-      message_code  = '0;
-    end
-    if (configuration.request_info_width > 0) begin
-      request_info  = item.info;
+      length          = item.length;
+      atomic_command  = 0;
+      message_code    = 0;
     end
   endfunction
 
@@ -320,6 +326,7 @@ class pzvip_corebus_item extends tue_sequence_item #(
     `uvm_field_int(address, UVM_DEFAULT | UVM_HEX)
     `uvm_field_int(length, UVM_DEFAULT | UVM_DEC)
     `uvm_field_int(burst_length, UVM_DEFAULT | UVM_DEC | UVM_NOCOMPARE)
+    `uvm_field_int(atomic_command, UVM_DEFAULT | UVM_HEX)
     `uvm_field_int(message_code, UVM_DEFAULT | UVM_HEX)
     `uvm_field_int(request_info, UVM_DEFAULT | UVM_HEX)
     `uvm_field_array_int(request_data, UVM_DEFAULT | UVM_HEX)
@@ -410,6 +417,16 @@ class pzvip_corebus_master_item extends pzvip_corebus_item;
           ((address >> this.configuration.address_shift) % this.configuration.data_size) +
           (this.configuration.data_size - 1)
         ) / this.configuration.data_size;
+    }
+  }
+
+  constraint c_valid_atomic_command {
+    solve command before atomic_command;
+    if (is_atomic_command(command)) {
+      (atomic_command >> this.configuration.atomic_command_width) == 0;
+    }
+    else {
+      atomic_command == 0;
     }
   }
 
@@ -644,6 +661,7 @@ class pzvip_corebus_slave_item extends pzvip_corebus_item;
     address.rand_mode(0);
     length.rand_mode(0);
     burst_length.rand_mode(0);
+    atomic_command.rand_mode(0);
     message_code.rand_mode(0);
     request_info.rand_mode(0);
     request_data.rand_mode(0);

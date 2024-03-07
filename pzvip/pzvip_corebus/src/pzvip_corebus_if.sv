@@ -18,6 +18,7 @@ interface pzvip_corebus_if (
   pzvip_corebus_id              mid;
   pzvip_corebus_address         maddr;
   pzvip_corebus_length          mlength;
+  pzvip_corebus_request_param   mparam;
   pzvip_corebus_request_info    minfo;
   bit                           mdata_valid;
   bit                           sdata_accept;
@@ -35,12 +36,12 @@ interface pzvip_corebus_if (
   pzvip_corebus_response_last   sresp_last;
   bit                           reset_n;
 
-  bit   default_command_valid   = 0;
-  bit   default_command_accept  = 1;
-  bit   default_data_valid      = 0;
-  bit   default_data_accept     = 1;
-  bit   default_response_valid  = 0;
-  bit   default_response_accept = 1;
+  bit default_command_valid   = 0;
+  bit default_command_accept  = 1;
+  bit default_data_valid      = 0;
+  bit default_data_accept     = 1;
+  bit default_response_valid  = 0;
+  bit default_response_accept = 1;
 
   always_comb begin
     reset_n = i_rst_n;
@@ -53,6 +54,7 @@ interface pzvip_corebus_if (
     output  mid;
     output  maddr;
     output  mlength;
+    output  mparam;
     output  minfo;
     output  mdata_valid;
     input   sdata_accept;
@@ -77,6 +79,7 @@ interface pzvip_corebus_if (
     input   mid;
     input   maddr;
     input   mlength;
+    input   mparam;
     input   minfo;
     input   mdata_valid;
     inout   sdata_accept;
@@ -101,6 +104,7 @@ interface pzvip_corebus_if (
     input mid;
     input maddr;
     input mlength;
+    input mparam;
     input minfo;
     input mdata_valid;
     input sdata_accept;

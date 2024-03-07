@@ -59,6 +59,7 @@ class pzvip_corebus_pa_writer extends pzvip_pa_writer_param_base #(
       else if (!item.is_atomic_request()) begin
         write_int_value(uid, "length", item.length);
         write_int_value(uid, "burst_length", item.get_burst_length());
+        write_int_value(uid, "atomic_command", item.atomic_command);
       end
     end
     write_bit_vector_value(uid, "request_info", item.request_info, configuration.request_info_width);
@@ -106,6 +107,7 @@ class pzvip_corebus_pa_writer extends pzvip_pa_writer_param_base #(
       end
       else if (!is_atomic_command(item.command)) begin
         write_int_value(uid, "length", item.length);
+        write_int_value(uid, "atomic_command", item.atomic_command);
       end
     end
     write_bit_vector_value(uid, "request_info", item.info, configuration.request_info_width);

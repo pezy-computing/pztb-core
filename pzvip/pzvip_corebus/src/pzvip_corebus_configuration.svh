@@ -12,7 +12,9 @@ class pzvip_corebus_configuration extends tue_configuration;
   rand  int                             address_width;
   rand  int                             max_length;
   rand  int                             length_width;
+  rand  int                             atomic_command_width;
   rand  int                             message_code_width;
+  rand  int                             request_param_width;
   rand  int                             request_info_width;
   rand  int                             unit_data_width;
   rand  int                             max_data_width;
@@ -86,16 +88,33 @@ class pzvip_corebus_configuration extends tue_configuration;
     }
   }
 
+  constraint c_valid_atomic_command_width {
+    solve profile before atomic_command_width;
+    if (profile == PZVIP_COREBUS_CSR) {
+      atomic_command_width == 0;
+    }
+    else {
+      atomic_command_width inside {[0:`PZVIP_COREBUS_MAX_ATOMIC_COMMAND_WIDTH]};
+    }
+  }
+
   constraint c_valid_message_code_width {
-    solve max_length before message_code_width;
+    solve profile before message_code_width;
     if (profile == PZVIP_COREBUS_CSR) {
       message_code_width == 0;
     }
-    else if (max_length == 1) {
-      message_code_width == 1;
+    else {
+      message_code_width inside {[0:`PZVIP_COREBUS_MAX_MESSAGE_CODE_WIDTH]};
+    }
+  }
+
+  constraint c_valid_request_param_width {
+    solve atomic_command_width, message_code_width before request_param_width;
+    if (atomic_command_width > message_code_width) {
+      request_param_width == atomic_command_width;
     }
     else {
-      message_code_width == $clog2(max_length);
+      request_param_width == message_code_width;
     }
   }
 
@@ -312,7 +331,9 @@ class pzvip_corebus_configuration extends tue_configuration;
     `uvm_field_int(address_width, UVM_DEFAULT | UVM_DEC)
     `uvm_field_int(max_length, UVM_DEFAULT | UVM_DEC)
     `uvm_field_int(length_width, UVM_DEFAULT | UVM_DEC)
+    `uvm_field_int(atomic_command_width, UVM_DEFAULT | UVM_DEC)
     `uvm_field_int(message_code_width, UVM_DEFAULT | UVM_DEC)
+    `uvm_field_int(request_param_width, UVM_DEFAULT | UVM_DEC)
     `uvm_field_int(request_info_width, UVM_DEFAULT | UVM_DEC)
     `uvm_field_int(unit_data_width, UVM_DEFAULT | UVM_DEC)
     `uvm_field_int(max_data_width, UVM_DEFAULT | UVM_DEC)

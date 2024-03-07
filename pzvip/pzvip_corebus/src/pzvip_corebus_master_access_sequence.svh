@@ -1,24 +1,25 @@
 `ifndef PZVIP_COREBUS_MASTER_ACCESS_SEQUENCE_SVH
 `define PZVIP_COREBUS_MASTER_ACCESS_SEQUENCE_SVH
 class pzvip_corebus_master_access_sequence extends pzvip_corebus_master_sequence;
-  rand  pzvip_corebus_command_type  command;
-  rand  pzvip_corebus_id            id;
-  rand  pzvip_corebus_address       address;
-  rand  int                         length;
-  rand  int                         burst_length;
-  rand  pzvip_corebus_message_code  message_code;
-  rand  pzvip_corebus_request_info  request_info;
-  rand  pzvip_corebus_data          request_data[];
-  rand  pzvip_corebus_byte_enable   byte_enable[];
-        bit                         error[];
-        pzvip_corebus_data          response_data[];
-        pzvip_corebus_response_info response_info[];
-  rand  int                         start_delay;
-  rand  int                         data_delay[];
-  rand  int                         accept_delay[];
-        uvm_event                   command_end_event;
-        uvm_event                   request_end_event;
-        uvm_event                   response_end_event;
+  rand  pzvip_corebus_command_type    command;
+  rand  pzvip_corebus_id              id;
+  rand  pzvip_corebus_address         address;
+  rand  int                           length;
+  rand  int                           burst_length;
+  rand  pzvip_corebus_atomic_command  atomic_command;
+  rand  pzvip_corebus_message_code    message_code;
+  rand  pzvip_corebus_request_info    request_info;
+  rand  pzvip_corebus_data            request_data[];
+  rand  pzvip_corebus_byte_enable     byte_enable[];
+        bit                           error[];
+        pzvip_corebus_data            response_data[];
+        pzvip_corebus_response_info   response_info[];
+  rand  int                           start_delay;
+  rand  int                           data_delay[];
+  rand  int                           accept_delay[];
+        uvm_event                     command_end_event;
+        uvm_event                     request_end_event;
+        uvm_event                     response_end_event;
 
   constraint c_valid_command {
     if (this.configuration.profile == PZVIP_COREBUS_CSR) {
@@ -86,6 +87,16 @@ class pzvip_corebus_master_access_sequence extends pzvip_corebus_master_sequence
         ((address >> this.configuration.address_shift) % this.configuration.data_size) +
         (this.configuration.data_size - 1)
       ) / this.configuration.data_size;
+    }
+  }
+
+  constraint c_valid_atomic_command {
+    solve command before atomic_command;
+    if (is_atomic_command(command)) {
+      (atomic_command >> this.configuration.atomic_command_width) == 0;
+    }
+    else {
+      atomic_command == 0;
     }
   }
 
@@ -223,6 +234,7 @@ class pzvip_corebus_master_access_sequence extends pzvip_corebus_master_sequence
     request.address               = address;
     request.length                = length;
     request.burst_length          = burst_length;
+    request.atomic_command        = atomic_command;
     request.message_code          = message_code;
     request.request_info          = request_info;
     request.start_delay           = start_delay;
@@ -272,6 +284,7 @@ class pzvip_corebus_master_access_sequence extends pzvip_corebus_master_sequence
     `uvm_field_int(address, UVM_DEFAULT | UVM_HEX)
     `uvm_field_int(length, UVM_DEFAULT | UVM_DEC)
     `uvm_field_int(burst_length, UVM_DEFAULT | UVM_DEC)
+    `uvm_field_int(atomic_command, UVM_DEFAULT | UVM_HEX)
     `uvm_field_int(message_code, UVM_DEFAULT | UVM_HEX)
     `uvm_field_int(request_info, UVM_DEFAULT | UVM_HEX)
     `uvm_field_array_int(request_data, UVM_DEFAULT | UVM_HEX)

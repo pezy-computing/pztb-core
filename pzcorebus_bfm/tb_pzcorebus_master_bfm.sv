@@ -55,6 +55,7 @@ module tb_pzcorebus_master_bfm
       master_if.mid           = id_base | vip_if.mid;
       master_if.maddr         = vip_if.maddr;
       master_if.mlength       = vip_if.mlength;
+      master_if.mparam        = vip_if.mparam;
       master_if.minfo         = vip_if.minfo;
       vip_if.sdata_accept     = master_if.sdata_accept;
       master_if.mdata_valid   = vip_if.mdata_valid;

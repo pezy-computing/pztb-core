@@ -144,9 +144,11 @@ class pzvip_corebus_monitor_base #(
     item.command      = vif.monitor_cb.mcmd;
     item.id           = vif.monitor_cb.mid & id_mask;
     item.address      = vif.monitor_cb.maddr & address_mask;
+    item.info         = vif.monitor_cb.minfo & request_info_mask;
     if (profile == PZVIP_COREBUS_CSR) begin
-      item.length       = 1;
-      item.message_code = '0;
+      item.length         = 1;
+      item.atomic_command = 0;
+      item.message_code   = 0;
       if (is_write_command(item.command)) begin
         item.data = vif.monitor_cb.mdata & data_mask;
         if (configuration.use_byte_enable) begin
@@ -154,19 +156,31 @@ class pzvip_corebus_monitor_base #(
         end
       end
     end
+    else if (is_atomic_command(item.command)) begin
+      item.length         = get_length();
+      item.atomic_command = vif.monitor_cb.mparam & request_param_mask;
+      item.message_code   = 0;
+    end
     else if (is_message_command(item.command)) begin
-      item.length       = 0;
-      item.message_code = vif.monitor_cb.mlength;
+      item.length         = 0;
+      item.atomic_command = 0;
+      item.message_code   = vif.monitor_cb.mparam & request_param_mask;
     end
     else begin
-      item.length = vif.monitor_cb.mlength & length_mask;
-      if (item.length == 0) begin
-        item.length = configuration.max_length;
-      end
-      item.message_code = '0;
+      item.length         = get_length();
+      item.atomic_command = 0;
+      item.message_code   = 0;
     end
-    if (configuration.request_info_width > 0) begin
-      item.info = vif.monitor_cb.minfo & request_info_mask;
+  endfunction
+
+  protected function int get_length();
+    int length;
+    length  = vif.monitor_cb.mlength & length_mask;
+    if (length == 0) begin
+      return configuration.max_length;
+    end
+    else begin
+      return length;
     end
   endfunction
 

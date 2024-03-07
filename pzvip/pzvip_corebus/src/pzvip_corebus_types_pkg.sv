@@ -53,12 +53,26 @@ package pzvip_corebus_types_pkg;
       ((`PZVIP_COREBUS_MAX_LENGTH == 1) ? 1 : $clog2(`PZVIP_COREBUS_MAX_LENGTH))
   `endif
 
+  `ifndef PZVIP_COREBUS_MAX_ATOMIC_COMMAND_WIDTH
+    `define PZVIP_COREBUS_MAX_ATOMIC_COMMAND_WIDTH  8
+  `endif
+
+  `ifndef PZVIP_COREBUS_MAX_MESSAGE_CODE_WIDTH
+    `define PZVIP_COREBUS_MAX_MESSAGE_CODE_WIDTH  1
+  `endif
+
+  `ifndef PZVIP_COREBUS_MAX_REQUEST_PARAM_INFO
+    `define PZVIP_COREBUS_MAX_REQUEST_PARAM_INFO \
+      ((`PZVIP_COREBUS_MAX_ATOMIC_COMMAND_WIDTH > `PZVIP_COREBUS_MAX_MESSAGE_CODE_WIDTH) ? \
+        `PZVIP_COREBUS_MAX_ATOMIC_COMMAND_WIDTH : `PZVIP_COREBUS_MAX_MESSAGE_CODE_WIDTH)
+  `endif
+
   `ifndef PZVIP_COREBUS_MAX_REQUEST_INFO_WIDTH
-    `define PZVIP_COREBUS_MAX_REQUEST_INFO_WIDTH  1
+    `define PZVIP_COREBUS_MAX_REQUEST_INFO_WIDTH  32
   `endif
 
   `ifndef PZVIP_COREBUS_MAX_RESPONSE_INFO_WIDTH
-    `define PZVIP_COREBUS_MAX_RESPONSE_INFO_WIDTH 1
+    `define PZVIP_COREBUS_MAX_RESPONSE_INFO_WIDTH 32
   `endif
 
   `ifndef PZVIP_COREBUS_MIN_DATA_WIDTH
@@ -82,7 +96,9 @@ package pzvip_corebus_types_pkg;
   typedef bit [`PZVIP_COREBUS_MAX_ID_WIDTH-1:0]             pzvip_corebus_id;
   typedef bit [`PZVIP_COREBUS_MAX_ADDRESS_WIDTH-1:0]        pzvip_corebus_address;
   typedef bit [`PZVIP_COREBUS_MAX_LENGTH_WIDTH-1:0]         pzvip_corebus_length;
-  typedef bit [`PZVIP_COREBUS_MAX_LENGTH_WIDTH-1:0]         pzvip_corebus_message_code;
+  typedef bit [`PZVIP_COREBUS_MAX_ATOMIC_COMMAND_WIDTH-1:0] pzvip_corebus_atomic_command;
+  typedef bit [`PZVIP_COREBUS_MAX_MESSAGE_CODE_WIDTH-1:0]   pzvip_corebus_message_code;
+  typedef bit [`PZVIP_COREBUS_MAX_REQUEST_PARAM_INFO-1:0]   pzvip_corebus_request_param;
   typedef bit [`PZVIP_COREBUS_MAX_REQUEST_INFO_WIDTH-1:0]   pzvip_corebus_request_info;
   typedef bit [`PZVIP_COREBUS_MAX_DATA_WIDTH-1:0]           pzvip_corebus_data;
   typedef bit [`PZVIP_COREBUS_MAX_BYTE_ENABLE_WIDTH-1:0]    pzvip_corebus_byte_enable;
@@ -91,15 +107,16 @@ package pzvip_corebus_types_pkg;
   typedef bit [1:0]                                         pzvip_corebus_response_last;
 
   typedef struct {
-    time                        begin_time;
-    pzvip_corebus_command_type  command;
-    pzvip_corebus_id            id;
-    pzvip_corebus_address       address;
-    int                         length;
-    pzvip_corebus_message_code  message_code;
-    pzvip_corebus_request_info  info;
-    pzvip_corebus_data          data;
-    pzvip_corebus_byte_enable   byte_enable;
+    time                          begin_time;
+    pzvip_corebus_command_type    command;
+    pzvip_corebus_id              id;
+    pzvip_corebus_address         address;
+    int                           length;
+    pzvip_corebus_atomic_command  atomic_command;
+    pzvip_corebus_message_code    message_code;
+    pzvip_corebus_request_info    info;
+    pzvip_corebus_data            data;
+    pzvip_corebus_byte_enable     byte_enable;
   } pzvip_corebus_command_item;
 
   typedef struct {

@@ -96,6 +96,7 @@ module tb_pzcorebus_slave_bfm
       vip_if.mid              = corebus_if.mid;
       vip_if.maddr            = corebus_if.maddr;
       vip_if.mlength          = corebus_if.mlength;
+      vip_if.mparam           = corebus_if.mparam;
       vip_if.minfo            = corebus_if.minfo;
       corebus_if.sdata_accept = vip_if.sdata_accept;
       vip_if.mdata_valid      = corebus_if.mdata_valid;

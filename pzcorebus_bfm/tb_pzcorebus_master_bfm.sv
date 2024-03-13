@@ -92,8 +92,9 @@ module tb_pzcorebus_master_bfm
 //--------------------------------------------------------------
   if (PZCOREBUS_ENABLE_SVA_CHECKER) begin : g_sva
     pzcorebus_response_sva_checker #(
-      .BUS_CONFIG   (BUS_CONFIG   ),
-      .SVA_CHECKER  (SVA_CHECKER  )
+      .BUS_CONFIG     (BUS_CONFIG   ),
+      .SVA_CHECKER    (SVA_CHECKER  ),
+      .SRESP_IF_ONLY  (0            )
     ) u_sva_checker (
       .i_clk    (i_clk      ),
       .i_rst_n  (i_rst_n    ),

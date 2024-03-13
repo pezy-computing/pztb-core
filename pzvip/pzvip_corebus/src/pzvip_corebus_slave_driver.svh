@@ -191,11 +191,9 @@ class pzvip_corebus_slave_driver_response;
 
   protected function int calc_burst_offset();
     if (configuration.profile == PZVIP_COREBUS_MEMORY_H) begin
-      int max_byte_size;
       int byte_size;
-      max_byte_size = configuration.max_data_width / 8;
-      byte_size     = configuration.data_width / 8;
-      return (item.address % max_byte_size) / byte_size;
+      byte_size = configuration.data_width / 8;
+      return (item.address % configuration.response_boundary) / byte_size;
     end
     else begin
       return 0;

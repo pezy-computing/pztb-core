@@ -1,35 +1,38 @@
 `ifndef PZVIP_MEMORY_SVH
 `define PZVIP_MEMORY_SVH
-virtual class pzvip_memory #(
-  type  CONFIGURATION = tue_configuration,
-  type  STATUS        = tue_status,
-  type  ADDRESS       = logic,
-  type  DATA          = logic,
-  type  BYTE_ENABLE   = logic
-) extends tue_object_base #(
-  .BASE           (uvm_object     ),
-  .CONFIGURATION  (CONFIGURATION  ),
-  .STATUS         (STATUS         )
-);
-  localparam  int ADDRESS_WIDTH = $bits(ADDRESS);
-  localparam  int DATA_WIDTH    = $bits(DATA);
-  localparam  int BYTE_WIDTH    = DATA_WIDTH / 8;
-  localparam  int KEY_LSB       = $clog2(BYTE_WIDTH);
-  localparam  int KEY_WIDTH     = ADDRESS_WIDTH - KEY_LSB;
 
-  typedef bit [KEY_WIDTH-1:0]   pzvip_memory_key;
-  typedef bit [DATA_WIDTH-1:0]  pzvip_memory_data;
+localparam  int PZVIP_MEMORY_MAX_ADDRESS_WIDTH  =
+  `ifdef  PZVIP_MEMORY_MAX_ADDRESS_WIDTH  `PZVIP_MEMORY_MAX_ADDRESS_WIDTH
+  `else                                   64
+  `endif;
 
-  protected DATA                  default_data;
-  protected bit                   default_data_valid;
-  protected pzvip_memory_data     memory[ADDRESS];
-  protected pzvip_pa_writer_base  pa_writer;
+localparam  int PZVIP_MEMORY_MAX_DATA_WIDTH =
+  `ifdef  PZVIP_MEMORY_MAX_DATA_WIDTH `PZVIP_MEMORY_MAX_DATA_WIDTH
+  `else                               512
+  `endif;
 
-  function new(string name = "pzvip_memory");
+class pzvip_memory_base extends uvm_object;
+  localparam  int KEY_LSB   = $clog2(PZVIP_MEMORY_MAX_DATA_WIDTH / 8);
+  localparam  int KEY_WIDTH = PZVIP_MEMORY_MAX_ADDRESS_WIDTH - KEY_LSB;
+
+  typedef bit   [KEY_WIDTH-1:0]                       pzvip_memory_key;
+  typedef bit   [PZVIP_MEMORY_MAX_ADDRESS_WIDTH-1:0]  pzvip_memory_address;
+  typedef bit   [PZVIP_MEMORY_MAX_DATA_WIDTH-1:0]     pzvip_memory_data;
+  typedef bit   [PZVIP_MEMORY_MAX_DATA_WIDTH/8-1:0]   pzvip_memory_byte_enable;
+  typedef logic [PZVIP_MEMORY_MAX_DATA_WIDTH-1:0]     pzvip_memory_logic_data;
+
+  protected pzvip_memory_data                       memory[pzvip_memory_key];
+  protected int                                     default_word_width;
+  protected logic [PZVIP_MEMORY_MAX_DATA_WIDTH-1:0] default_data;
+  protected bit                                     default_data_valid;
+  protected pzvip_pa_writer_base                    pa_writer;
+
+  function new(string name = "pzvip_memory_base");
     super.new(name);
+    default_word_width  = PZVIP_MEMORY_MAX_DATA_WIDTH / 8;
   endfunction
 
-  function void set_default_data(DATA data);
+  function void set_default_data(logic [PZVIP_MEMORY_MAX_DATA_WIDTH-1:0] data);
     default_data_valid  = '1;
     default_data        = data;
   endfunction
@@ -39,20 +42,20 @@ virtual class pzvip_memory #(
   endfunction
 
   virtual function void put(
-    DATA        data,
-    BYTE_ENABLE byte_enable,
-    ADDRESS     base,
-    int         word_index  = 0,
-    int         word_width  = 0,
-    bit         backdoor    = 1
+    pzvip_memory_data         data,
+    pzvip_memory_byte_enable  byte_enable,
+    pzvip_memory_address      base,
+    int                       word_index  = 0,
+    int                       word_width  = 0,
+    bit                       backdoor    = 1
   );
-    int               width;
-    ADDRESS           address;
-    pzvip_memory_key  key;
-    int               offset;
-    pzvip_memory_data write_data;
+    int                   width;
+    pzvip_memory_address  address;
+    pzvip_memory_key      key;
+    int                   offset;
+    pzvip_memory_data     write_data;
 
-    width       = (word_width > 0) ? word_width : get_default_word_width();
+    width       = (word_width > 0) ? word_width : default_word_width;
     address     = base + width * word_index;
     key         = address[KEY_LSB+:KEY_WIDTH];
     offset      = get_offset(address, width);
@@ -66,24 +69,24 @@ virtual class pzvip_memory #(
 
     if (pa_writer != null) begin
       pzvip_memory_data result;
-      result      = shift_data(write_data, offset, width);
+      result  = shift_data(write_data, offset, width);
       pa_writer.memory_write_masked(address, data, byte_enable, result, backdoor);
     end
   endfunction
 
-  virtual function DATA get(
-    ADDRESS base,
-    int     word_index  = 0,
-    int     word_width  = 0,
-    bit     backdoor    = 1
+  virtual function pzvip_memory_logic_data get(
+    pzvip_memory_address  base,
+    int                   word_index  = 0,
+    int                   word_width  = 0,
+    bit                   backdoor    = 1
   );
-    int               width;
-    ADDRESS           address;
-    pzvip_memory_key  key;
-    int               offset;
-    pzvip_memory_data data;
+    int                     width;
+    pzvip_memory_address    address;
+    pzvip_memory_key        key;
+    int                     offset;
+    pzvip_memory_logic_data data;
 
-    width   = (word_width > 0) ? word_width : get_default_word_width();
+    width   = (word_width > 0) ? word_width : default_word_width;
     address = base + width * word_index;
     key     = address[KEY_LSB+:KEY_WIDTH];
     offset  = get_offset(address, width);
@@ -98,14 +101,14 @@ virtual class pzvip_memory #(
   endfunction
 
   virtual function bit exists(
-    ADDRESS base,
-    int     word_index  = 0,
-    int     word_width  = 0
+    pzvip_memory_address  base,
+    int                   word_index  = 0,
+    int                   word_width  = 0
   );
-    int               width;
-    ADDRESS           address;
-    pzvip_memory_key  key;
-    width   = (word_width > 0) ? word_width : get_default_word_width();
+    int                   width;
+    pzvip_memory_address  address;
+    pzvip_memory_key      key;
+    width   = (word_width > 0) ? word_width : default_word_width;
     address = base + width * word_index;
     key     = address[KEY_LSB+:KEY_WIDTH];
     return exist_memory_data(key);
@@ -115,7 +118,7 @@ virtual class pzvip_memory #(
     memory.delete();
   endfunction
 
-  protected function int get_offset(ADDRESS address, int width);
+  protected function int get_offset(pzvip_memory_address address, int width);
     bit [KEY_LSB-1:0] offset;
     bit [KEY_LSB-1:0] mask;
     offset  = address[0+:KEY_LSB];
@@ -123,18 +126,15 @@ virtual class pzvip_memory #(
     return offset & (~mask);
   endfunction
 
-  protected virtual function pzvip_memory_data get_memory_data(pzvip_memory_key key);
+  protected virtual function pzvip_memory_logic_data get_memory_data(pzvip_memory_key key);
     if (!exist_memory_data(key)) begin
-      pzvip_memory_data data;
-
       if (default_data_valid) begin
-        data  = default_data;
+        return default_data;
       end
       else begin
-        data  = get_random_data();
+        pzvip_memory_data data  = get_random_data();
+        set_memory_data(key, data);
       end
-
-      set_memory_data(key, data);
     end
 
     return memory[key];
@@ -149,36 +149,45 @@ virtual class pzvip_memory #(
   endfunction
 
   protected function pzvip_memory_data get_random_data();
-    if (DATA_WIDTH == 8) begin
+    if (PZVIP_MEMORY_MAX_DATA_WIDTH == 8) begin
       return $urandom_range(32'h0000_00FF);
     end
-    else if (DATA_WIDTH == 16) begin
+    else if (PZVIP_MEMORY_MAX_DATA_WIDTH == 16) begin
       return $urandom_range(32'h0000_FFFF);
     end
-    else if (DATA_WIDTH == 32) begin
+    else if (PZVIP_MEMORY_MAX_DATA_WIDTH == 32) begin
       return $urandom_range(32'hFFFF_FFFF);
     end
     else begin
       pzvip_memory_data data;
-      for (int i = 0;i < DATA_WIDTH;i += 32) begin
+      for (int i = 0;i < PZVIP_MEMORY_MAX_DATA_WIDTH;i += 32) begin
         data[i+:32] = $urandom_range(32'hFFFF_FFFF);
       end
       return data;
     end
   endfunction
 
-  protected function DATA shift_data(
-    DATA  data,
-    int   byte_offset,
-    int   byte_width
+  protected function pzvip_memory_logic_data shift_data(
+    pzvip_memory_logic_data data,
+    int                     byte_offset,
+    int                     byte_width
   );
-    DATA  mask;
-    DATA  result;
+    pzvip_memory_logic_data mask;
+    pzvip_memory_logic_data result;
     mask    = (1 << (8 * byte_width)) - 1;
     result  = (data >> (8 * byte_offset)) & mask;
     return result;
   endfunction
+endclass
 
-  protected pure virtual function int get_default_word_width();
+class pzvip_memory #(
+  type  CONFIGURATION = tue_configuration,
+  type  STATUS        = tue_status
+) extends tue_object_base #(
+  .BASE           (pzvip_memory_base  ),
+  .CONFIGURATION  (CONFIGURATION      ),
+  .STATUS         (STATUS             )
+);
+  `tue_object_default_constructor(pzvip_memory)
 endclass
 `endif

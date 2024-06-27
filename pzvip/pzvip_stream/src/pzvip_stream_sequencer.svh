@@ -2,9 +2,9 @@ class pzvip_stream_item_waiter extends tue_item_waiter #(
   .CONFIGURATION  (pzvip_stream_configuration ),
   .STATUS         (pzvip_stream_status        ),
   .ITEM           (pzvip_stream_item          ),
-  .ID             (int                        )
+  .KEY            (int                        )
 );
-  function int get_id(pzvip_stream_item item);
+  protected function bit match_key(int key, pzvip_stream_item item);
     return 0;
   endfunction
   `tue_component_default_constructor(pzvip_stream_item_waiter)

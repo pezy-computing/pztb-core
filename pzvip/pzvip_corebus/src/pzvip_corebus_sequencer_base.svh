@@ -4,10 +4,10 @@ class pzvip_corebus_item_waiter extends tue_item_waiter #(
   .CONFIGURATION  (pzvip_corebus_configuration  ),
   .STATUS         (pzvip_corebus_status         ),
   .ITEM           (pzvip_corebus_item           ),
-  .ID             (pzvip_corebus_id             )
+  .KEY            (pzvip_corebus_id             )
 );
-  function pzvip_corebus_id get_id(pzvip_corebus_item item);
-    return item.id;
+  protected function bit match_key(pzvip_corebus_id key, pzvip_corebus_item item);
+    return item.id == key;
   endfunction
   `tue_component_default_constructor(pzvip_corebus_item_waiter)
 endclass
@@ -62,7 +62,7 @@ class pzvip_corebus_sequencer_base #(
   endtask \
   virtual task get_``ITEM_TYPE``_by_id(input pzvip_corebus_id id, ref ITEM item); \
     pzvip_corebus_item  temp; \
-    ITEM_TYPE``_waiter.get_item_by_id(id, temp); \
+    ITEM_TYPE``_waiter.get_item_by_key(id, temp); \
     $cast(item, temp); \
   endtask
 

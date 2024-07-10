@@ -25,12 +25,12 @@ interface tb_memory_model
 
   function automatic DATA_TYPE get(ADDRESS_TYPE address);
     KEY_TYPE  key = get_key(address);
-    if (memory.exists(key)) begin
-      return memory[key];
+
+    if (!memory.exists(key)) begin
+      memory[key] = get_default_data();
     end
-    else begin
-      return get_default_data();
-    end
+
+    return memory[key];
   endfunction
 
   function automatic void put(ADDRESS_TYPE address, DATA_TYPE data, DATA_TYPE bit_mask = '1);
@@ -46,6 +46,22 @@ interface tb_memory_model
   endfunction
 
   pztb_mem_init default_value = PZTB_MEM_INIT_X;
+
+  function automatic set_default_data_x();
+    default_value = PZTB_MEM_INIT_X;
+  endfunction
+
+  function automatic set_default_data_0();
+    default_value = PZTB_MEM_INIT_0;
+  endfunction
+
+  function automatic set_default_data_1();
+    default_value = PZTB_MEM_INIT_1;
+  endfunction
+
+  function automatic set_default_data_random();
+    default_value = PZTB_MEM_INIT_RANDOM;
+  endfunction
 
   function automatic DATA_TYPE get_default_data();
     DATA_TYPE data;

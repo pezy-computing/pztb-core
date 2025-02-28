@@ -24,25 +24,40 @@ interface tb_memory_model
   endfunction
 
   function automatic DATA_TYPE get(ADDRESS_TYPE address);
-    KEY_TYPE  key = get_key(address);
-
-    if (!memory.exists(key)) begin
-      memory[key] = get_default_data();
+    if ($isunknown(address)) begin
+      return get_default_data();
     end
+    else begin
+      KEY_TYPE  key = get_key(address);
 
-    return memory[key];
+      if (!memory.exists(key)) begin
+        memory[key] = get_default_data();
+      end
+
+      return memory[key];
+    end
   endfunction
 
   function automatic void put(ADDRESS_TYPE address, DATA_TYPE data, DATA_TYPE bit_mask = '1);
-    KEY_TYPE  key           = get_key(address);
-    DATA_TYPE current_data  = get(address);
-    memory[key] = (data & bit_mask) | (current_data & (~bit_mask));
+    if ($isunknown(address)) begin
+      $warning("address includes unknown bits");
+    end
+    else begin
+      KEY_TYPE  key           = get_key(address);
+      DATA_TYPE current_data  = get(address);
+      memory[key] = (data & bit_mask) | (current_data & (~bit_mask));
+    end
   endfunction
 
   function automatic void nb_put(ADDRESS_TYPE address, DATA_TYPE data, DATA_TYPE bit_mask = '1);
-    KEY_TYPE  key           = get_key(address);
-    DATA_TYPE current_data  = get(address);
-    memory[key] <= (data & bit_mask) | (current_data & (~bit_mask));
+    if ($isunknown(address)) begin
+      $warning("address includes unknown bits");
+    end
+    else begin
+      KEY_TYPE  key           = get_key(address);
+      DATA_TYPE current_data  = get(address);
+      memory[key] <= (data & bit_mask) | (current_data & (~bit_mask));
+    end
   endfunction
 
   pztb_mem_init default_value = PZTB_MEM_INIT_X;

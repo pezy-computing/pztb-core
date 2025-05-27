@@ -16,10 +16,22 @@ typedef class pzvip_corebus_slave_driver;
 class pzvip_corebus_slave_driver_start_delay_queue;
   protected pzvip_corebus_slave_driver                  driver;
   protected tue_fifo #(pzvip_corebus_start_delay_item)  delay_queue[int];
-  protected event                                       notifier[2];
+  protected event                                       notifier;
 
   function new(pzvip_corebus_slave_driver driver);
     this.driver = driver;
+  endfunction
+
+  function void cleanup();
+    pzvip_corebus_start_delay_item  item;
+
+    foreach (delay_queue[i]) begin
+      while (delay_queue[i].try_get(item)) begin
+        driver.end_tr(item.item);
+      end
+    end
+
+    delay_queue.delete();
   endfunction
 
   task put(
@@ -38,11 +50,7 @@ class pzvip_corebus_slave_driver_start_delay_queue;
   endtask
 
   task wait_for_active_response();
-    @(notifier[0]);
-  endtask
-
-  task do_reset();
-    ->notifier[1];
+    @(notifier);
   endtask
 
   protected task start_delay_thread(int id);
@@ -59,24 +67,9 @@ class pzvip_corebus_slave_driver_start_delay_queue;
 
     queue = delay_queue[id];
     forever begin
-      fork
-        forever begin
-          queue.get(delay_item);
-          consume_start_delay(delay_item);
-        end
-        @(notifier[1]);
-      join_any
-      disable fork;
-
-      if ((delay_item.item != null) && (!delay_item.item.ended())) begin
-        driver.end_tr(delay_item.item);
-      end
-
-      while (queue.try_get(delay_item)) begin
-        if (!delay_item.item.ended()) begin
-          driver.end_tr(delay_item.item);
-        end
-      end
+      queue.peek(delay_item);
+      consume_start_delay(delay_item);
+      void'(queue.try_get(delay_item));
     end
   endtask
 
@@ -84,7 +77,7 @@ class pzvip_corebus_slave_driver_start_delay_queue;
     delay_item.item.wait_for_request_done();
     driver.consume_delay(delay_item.item.start_delay);
     delay_item.queue.put(delay_item.item);
-    ->notifier[0];
+    ->notifier;
   endtask
 endclass
 
@@ -276,7 +269,7 @@ class pzvip_corebus_slave_driver extends pzvip_corebus_component_base #(
   endtask
 
   protected task do_reset();
-    start_delay_queue.do_reset();
+    start_delay_queue.cleanup();
 
     foreach (response_queue[i]) begin
       pzvip_corebus_item  item;

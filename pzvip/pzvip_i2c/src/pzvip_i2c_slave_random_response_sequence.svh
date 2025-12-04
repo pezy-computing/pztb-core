@@ -28,7 +28,7 @@ class pzvip_i2c_slave_random_response_sequence extends pzvip_i2c_slave_sequence_
       if (!configuration.support_10bits_address) begin
         if (sda_byte[1+:7] == configuration.address[0+:7]) begin
           read_access = sda_byte[0];
-          vif.drive_i2c_slave(0, 0, sda_bit);
+          vif.drive_i2c_slave(0, 0, 0, sda_bit);
           return;
         end
         else begin
@@ -38,7 +38,7 @@ class pzvip_i2c_slave_random_response_sequence extends pzvip_i2c_slave_sequence_
       else begin
         if (sda_byte[1+:7] == {5'b1111_0, configuration.address[8+:2]}) begin
           read_access = sda_byte[0];
-          vif.drive_i2c_slave(0, 0, sda_bit);
+          vif.drive_i2c_slave(0, 0, 0, sda_bit);
         end
         else begin
           continue;
@@ -47,7 +47,7 @@ class pzvip_i2c_slave_random_response_sequence extends pzvip_i2c_slave_sequence_
 
       vif.sample_byte(sda_byte);
       if (sda_byte == configuration.address[0+:8]) begin
-        vif.drive_i2c_slave(0, 0, sda_bit);
+        vif.drive_i2c_slave(0, 0, 0, sda_bit);
         return;
       end
       else begin
@@ -57,13 +57,15 @@ class pzvip_i2c_slave_random_response_sequence extends pzvip_i2c_slave_sequence_
   endtask
 
   protected task send_data();
+    int       timeout;
     bit [7:0] data;
     bit       acknack;
     bit       dummy;
     forever begin
       data  = $urandom_range(0, 255);
       for (int i = 7;i >= 0;--i) begin
-        vif.drive_i2c_slave(0, data[i], dummy);
+        timeout = (i == 7) ? configuration.wait_scl_timeout_ns : 0;
+        vif.drive_i2c_slave(0, timeout, data[i], dummy);
       end
       vif.sample_bit(acknack);
     end
@@ -78,7 +80,7 @@ class pzvip_i2c_slave_random_response_sequence extends pzvip_i2c_slave_sequence_
         vif.sample_bit(sda_bit);
         data[i] = sda_bit;
       end
-      vif.drive_i2c_slave(0, $urandom_range(0, 1), acknack);
+      vif.drive_i2c_slave(0, 0, $urandom_range(0, 1), acknack);
     end
   endtask
 

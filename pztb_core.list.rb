@@ -14,7 +14,7 @@ if macro? :_PZ_UVM_
 end
 
 [
-  'pkg', 'misc', 'memory', 'irq_bfm', 'pzcorebus_bfm', 'pzaxi_bfm'
+  'pkg', 'misc', 'memory', 'irq_bfm', 'pzcorebus_bfm'#, 'pzaxi_bfm'
 ].each do |component|
   file_list "#{component}/#{component}.list.rb"
 end

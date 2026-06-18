@@ -111,6 +111,7 @@ interface pzvip_i2c_if;
 
   task automatic drive_i2c_slave(
     input int scl_stretching_ns,
+    input int wait_scl_timeout_ns,
     input bit out_bit,
     ref   bit in_bit
   );
@@ -130,7 +131,16 @@ interface pzvip_i2c_if;
     end
     in_bit  = sda_in;
 
-    @(scl_negedge);
+    if (wait_scl_timeout_ns > 0) begin
+      fork
+        @(scl_negedge);
+        #(wait_scl_timeout_ns);
+      join_any
+      disable fork;
+    end
+    else begin
+      @(scl_negedge);
+    end
     sda_out <= '1;
   endtask
 

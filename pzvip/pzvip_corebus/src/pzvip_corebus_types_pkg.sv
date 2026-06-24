@@ -18,12 +18,10 @@ package pzvip_corebus_types_pkg;
     PZVIP_COREBUS_READ                  = 4'b1_001,
     PZVIP_COREBUS_WRITE                 = 4'b0_100,
     PZVIP_COREBUS_WRITE_NON_POSTED      = 4'b1_100,
-    PZVIP_COREBUS_FULL_WRITE            = 4'b0_101,
-    PZVIP_COREBUS_FULL_WRITE_NON_POSTED = 4'b1_101,
-    PZVIP_COREBUS_BROADCAST             = 4'b0_110,
-    PZVIP_COREBUS_BROADCAST_NON_POSTED  = 4'b1_110,
-    PZVIP_COREBUS_ATOMIC                = 4'b0_111,
-    PZVIP_COREBUS_ATOMIC_NON_POSTED     = 4'b1_111,
+    PZVIP_COREBUS_BROADCAST             = 4'b0_101,
+    PZVIP_COREBUS_BROADCAST_NON_POSTED  = 4'b1_101,
+    PZVIP_COREBUS_ATOMIC                = 4'b0_110,
+    PZVIP_COREBUS_ATOMIC_NON_POSTED     = 4'b1_110,
     PZVIP_COREBUS_MESSAGE               = 4'b0_010,
     PZVIP_COREBUS_MESSAGE_NON_POSTED    = 4'b1_010
   } pzvip_corebus_command_type;

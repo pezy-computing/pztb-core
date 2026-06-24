@@ -31,7 +31,6 @@ class pzvip_corebus_master_access_sequence extends pzvip_corebus_master_sequence
     else {
       command inside {
         PZVIP_COREBUS_READ, PZVIP_COREBUS_WRITE, PZVIP_COREBUS_WRITE_NON_POSTED,
-        PZVIP_COREBUS_FULL_WRITE, PZVIP_COREBUS_FULL_WRITE_NON_POSTED,
         PZVIP_COREBUS_ATOMIC, PZVIP_COREBUS_ATOMIC_NON_POSTED,
         PZVIP_COREBUS_MESSAGE, PZVIP_COREBUS_MESSAGE_NON_POSTED
       };
@@ -46,9 +45,6 @@ class pzvip_corebus_master_access_sequence extends pzvip_corebus_master_sequence
     solve command before address;
 
     (address >> this.configuration.address_width) == 0;
-    if ((this.configuration.profile == PZVIP_COREBUS_MEMORY_H) && is_full_write_command(command)) {
-      (address % (this.configuration.data_width / 8)) == 0;
-    }
   }
 
   constraint c_valid_length {
@@ -62,10 +58,6 @@ class pzvip_corebus_master_access_sequence extends pzvip_corebus_master_sequence
     }
     else {
       length inside {[1:this.configuration.max_length]};
-    }
-
-    if ((this.configuration.profile != PZVIP_COREBUS_CSR) && is_full_write_command(command)) {
-      (length % this.configuration.data_size) == 0;
     }
   }
 
@@ -140,15 +132,8 @@ class pzvip_corebus_master_access_sequence extends pzvip_corebus_master_sequence
       byte_enable.size() == 0;
     }
 
-    if (is_full_write_command(command)) {
-      foreach (byte_enable[i]) {
-        byte_enable[i] == ((1 << this.configuration.byte_enable_width) - 1);
-      }
-    }
-    else {
-      foreach (byte_enable[i]) {
-        (byte_enable[i] >> this.configuration.byte_enable_width) == 0;
-      }
+    foreach (byte_enable[i]) {
+      (byte_enable[i] >> this.configuration.byte_enable_width) == 0;
     }
   }
 
@@ -303,8 +288,6 @@ class pzvip_corebus_master_write_sequence extends pzvip_corebus_master_access_se
     command inside {
       PZVIP_COREBUS_WRITE,
       PZVIP_COREBUS_WRITE_NON_POSTED,
-      PZVIP_COREBUS_FULL_WRITE,
-      PZVIP_COREBUS_FULL_WRITE_NON_POSTED,
       PZVIP_COREBUS_BROADCAST,
       PZVIP_COREBUS_BROADCAST_NON_POSTED
     };

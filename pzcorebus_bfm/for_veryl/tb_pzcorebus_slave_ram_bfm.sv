@@ -142,10 +142,7 @@ interface automatic tb_pzcorebus_slave_ram_bfm
 
   function bit is_write_access(MCMD mcmd);
     pzcorebus_mcmd_kind mcmd_kind = pzcorebus_mcmd_kind'(mcmd.mcmd);
-    return mcmd_kind inside {
-      PZCOREBUS_WRITE_COMMAND, PZCOREBUS_FULL_WRITE_COMMAND,
-      PZCOREBUS_BROADCAST_COMMAND
-    };
+    return mcmd_kind inside {PZCOREBUS_WRITE_COMMAND, PZCOREBUS_BROADCAST_COMMAND};
   endfunction
 
   function bit is_np_access(MCMD mcmd);

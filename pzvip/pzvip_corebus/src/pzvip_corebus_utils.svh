@@ -24,13 +24,8 @@ endfunction
 function automatic bit is_write_command(pzvip_corebus_command_type command);
   return command inside {
     PZVIP_COREBUS_WRITE, PZVIP_COREBUS_WRITE_NON_POSTED,
-    PZVIP_COREBUS_FULL_WRITE, PZVIP_COREBUS_FULL_WRITE_NON_POSTED,
     PZVIP_COREBUS_BROADCAST, PZVIP_COREBUS_BROADCAST_NON_POSTED
   };
-endfunction
-
-function automatic bit is_full_write_command(pzvip_corebus_command_type command);
-  return command inside {PZVIP_COREBUS_FULL_WRITE, PZVIP_COREBUS_FULL_WRITE_NON_POSTED};
 endfunction
 
 function automatic bit is_atomic_command(pzvip_corebus_command_type command);
